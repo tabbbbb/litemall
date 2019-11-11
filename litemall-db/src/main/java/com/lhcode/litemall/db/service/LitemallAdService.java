@@ -22,15 +22,19 @@ public class LitemallAdService {
         return adMapper.selectByExample(example);
     }
 
-    public List<LitemallAd> querySelective(String name, String content, Integer page, Integer limit, String sort, String order) {
+    public List<LitemallAd> querySelective(Byte position, Integer enabled, Integer page, Integer limit, String sort, String order) {
         LitemallAdExample example = new LitemallAdExample();
         LitemallAdExample.Criteria criteria = example.createCriteria();
 
-        if (!StringUtils.isEmpty(name)) {
-            criteria.andNameLike("%" + name + "%");
+        if (position != null && position != -1) {
+            criteria.andPositionEqualTo(position);
         }
-        if (!StringUtils.isEmpty(content)) {
-            criteria.andContentLike("%" + content + "%");
+        if(enabled != null){
+            if (enabled == 0){
+                criteria.andEnabledEqualTo(false);
+            }else{
+                criteria.andEnabledEqualTo(true);
+            }
         }
         criteria.andDeletedEqualTo(false);
 
@@ -42,8 +46,11 @@ public class LitemallAdService {
         return adMapper.selectByExample(example);
     }
 
-    public int updateById(LitemallAd ad) {
+    public synchronized int updateById(LitemallAd ad) {
         ad.setUpdateTime(LocalDateTime.now());
+        if (ad.getEnabled() == true){
+            this.updateEnabled(Integer.valueOf(ad.getPosition()));
+        }
         return adMapper.updateByPrimaryKeySelective(ad);
     }
 
@@ -51,13 +58,20 @@ public class LitemallAdService {
         adMapper.logicalDeleteByPrimaryKey(id);
     }
 
-    public void add(LitemallAd ad) {
+    public synchronized void add(LitemallAd ad) {
         ad.setAddTime(LocalDateTime.now());
         ad.setUpdateTime(LocalDateTime.now());
+        if (ad.getEnabled() == true){
+            this.updateEnabled(Integer.valueOf(ad.getPosition()));
+        }
         adMapper.insertSelective(ad);
     }
 
     public LitemallAd findById(Integer id) {
         return adMapper.selectByPrimaryKey(id);
+    }
+
+    public void updateEnabled(Integer position){
+        adMapper.updateEnabled(position);
     }
 }

@@ -165,4 +165,8 @@ public class LitemallUserService {
     public int updateAdminIds(Integer adminId , String [] ids){
         return userMapper.updateAdminIds(adminId,ids);
     }
+
+    public void updateUserLevel(Integer id,Integer level){
+        userMapper.updateUserLevel(id,level);
+    }
 }

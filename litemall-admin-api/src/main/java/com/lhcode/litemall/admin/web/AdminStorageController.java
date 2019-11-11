@@ -19,6 +19,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.constraints.NotNull;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -47,7 +48,6 @@ public class AdminStorageController {
         Map<String, Object> data = new HashMap<>();
         data.put("total", total);
         data.put("items", storageList);
-
         return ResponseUtil.ok(data);
     }
 
@@ -58,6 +58,7 @@ public class AdminStorageController {
         String originalFilename = file.getOriginalFilename();
         LitemallStorage litemallStorage = storageService.store(file.getInputStream(), file.getSize(), file.getContentType(), originalFilename);
         return ResponseUtil.ok(litemallStorage);
+
     }
 
     @RequiresPermissions("admin:storage:read")

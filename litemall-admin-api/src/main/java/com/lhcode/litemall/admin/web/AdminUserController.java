@@ -19,6 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import javax.xml.ws.Response;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -93,15 +94,19 @@ public class AdminUserController {
         return mapList;
     }
 
-    @RequiresPermissions("admin:user:adminIds")
-    @PutMapping(value = "/adminIds")
-    public Object updateAdminIds( Integer adminId,  String ids){
-        String[] idsArray = ids.split(",");
-        int result = userService.updateAdminIds(adminId,idsArray);
-        if (result == 0){
-            return ResponseUtil.fail(147,"分配失败");
+
+
+    @RequiresPermissions("admin:user:userLevel")
+    @RequiresPermissionsDesc(menu={"用户管理" , "会员管理"}, button="用户会员等级修改")
+    @PutMapping(value = "/userLevel")
+    public Object updateUserLevel(Integer id, Integer level){
+        if (id == null || level == null){
+            return ResponseUtil.fail(568,"参数错误");
         }else{
+            userService.updateUserLevel(id,level);
             return ResponseUtil.ok();
         }
     }
+
+
 }

@@ -707,5 +707,8 @@
       #{item}
     </foreach>
   </update>
+    <update id="updateUserLevel">
+      update litemall_user set user_level = #{level} where id =#{id}
+    </update>
 
 </mapper>

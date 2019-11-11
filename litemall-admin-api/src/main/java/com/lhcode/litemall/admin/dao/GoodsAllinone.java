@@ -10,7 +10,7 @@ public class GoodsAllinone {
     LitemallGoodsSpecification[] specifications;
     LitemallGoodsAttribute[] attributes;
     // 这里采用 Product 再转换到 LitemallGoodsProduct
-    LitemallGoodsProduct[] products;
+    //LitemallGoodsProduct[] products;
 
     public LitemallGoods getGoods() {
         return goods;
@@ -18,14 +18,6 @@ public class GoodsAllinone {
 
     public void setGoods(LitemallGoods goods) {
         this.goods = goods;
-    }
-
-    public LitemallGoodsProduct[] getProducts() {
-        return products;
-    }
-
-    public void setProducts(LitemallGoodsProduct[] products) {
-        this.products = products;
     }
 
     public LitemallGoodsSpecification[] getSpecifications() {

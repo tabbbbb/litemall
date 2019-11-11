@@ -157,4 +157,7 @@ public interface LitemallAdMapper {
      * @project https://github.com/itfsw/mybatis-generator-plugin
      */
     int logicalDeleteByPrimaryKey(Integer id);
+
+
+    int updateEnabled(Integer position);
 }

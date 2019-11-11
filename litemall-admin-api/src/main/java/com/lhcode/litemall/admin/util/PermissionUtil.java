@@ -10,6 +10,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.util.ClassUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import java.lang.reflect.Method;
@@ -125,6 +126,16 @@ public class PermissionUtil {
                 GetMapping getMapping = AnnotationUtils.getAnnotation(method, GetMapping.class);
                 if (getMapping != null) {
                     api = "GET " + api + getMapping.value()[0];
+                    Permission permission = new Permission();
+                    permission.setRequiresPermissions(requiresPermissions);
+                    permission.setRequiresPermissionsDesc(requiresPermissionsDesc);
+                    permission.setApi(api);
+                    permissions.add(permission);
+                    continue;
+                }
+                PutMapping putMapping = AnnotationUtils.getAnnotation(method, PutMapping.class);
+                if (putMapping != null) {
+                    api = "PUT " + api + putMapping.value()[0];
                     Permission permission = new Permission();
                     permission.setRequiresPermissions(requiresPermissions);
                     permission.setRequiresPermissionsDesc(requiresPermissionsDesc);

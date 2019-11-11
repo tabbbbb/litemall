@@ -157,4 +157,8 @@ public interface LitemallGoodsSpecificationMapper {
      * @project https://github.com/itfsw/mybatis-generator-plugin
      */
     int logicalDeleteByPrimaryKey(Integer id);
+
+
+
+    int updateIsDefault(Integer goodsId);
 }

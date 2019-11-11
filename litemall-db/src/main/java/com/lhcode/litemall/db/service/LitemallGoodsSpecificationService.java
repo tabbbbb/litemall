@@ -39,6 +39,10 @@ public class LitemallGoodsSpecificationService {
         goodsSpecificationMapper.insertSelective(goodsSpecification);
     }
 
+    public void updateIsDefault(Integer goodsId){
+        goodsSpecificationMapper.updateIsDefault(goodsId);
+    }
+
     /**
      * [
      * {

@@ -33,8 +33,6 @@ public class AdminGoodsService {
     @Autowired
     private LitemallGoodsAttributeService attributeService;
     @Autowired
-    private LitemallGoodsProductService productService;
-    @Autowired
     private LitemallCategoryService categoryService;
     @Autowired
     private LitemallBrandService brandService;
@@ -106,24 +104,6 @@ public class AdminGoodsService {
             }
         }
 
-        LitemallGoodsProduct[] products = goodsAllinone.getProducts();
-        for (LitemallGoodsProduct product : products) {
-            Integer number = product.getNumber();
-            if (number == null || number < 0) {
-                return ResponseUtil.badArgument();
-            }
-
-            BigDecimal price = product.getPrice();
-            if (price == null) {
-                return ResponseUtil.badArgument();
-            }
-
-            String[] productSpecifications = product.getSpecifications();
-            if (productSpecifications.length == 0) {
-                return ResponseUtil.badArgument();
-            }
-        }
-
         return null;
     }
 
@@ -153,7 +133,6 @@ public class AdminGoodsService {
         LitemallGoods goods = goodsAllinone.getGoods();
         LitemallGoodsAttribute[] attributes = goodsAllinone.getAttributes();
         LitemallGoodsSpecification[] specifications = goodsAllinone.getSpecifications();
-        LitemallGoodsProduct[] products = goodsAllinone.getProducts();
 
         Integer id = goods.getId();
 
@@ -169,11 +148,17 @@ public class AdminGoodsService {
         Integer gid = goods.getId();
         specificationService.deleteByGid(gid);
         attributeService.deleteByGid(gid);
-        productService.deleteByGid(gid);
 
         // 商品规格表litemall_goods_specification
         for (LitemallGoodsSpecification specification : specifications) {
             specification.setGoodsId(goods.getId());
+            if (specification.getIsDefault() == 1){
+                specification.setCounterPrice(goods.getCounterPrice());
+                specification.setOnePrice(goods.getOnePrice());
+                specification.setTwoPrice(goods.getTwoPrice());
+                specification.setThreePrice(goods.getThreePrice());
+                specificationService.updateIsDefault(goods.getId());
+            }
             specificationService.add(specification);
         }
 
@@ -183,11 +168,6 @@ public class AdminGoodsService {
             attributeService.add(attribute);
         }
 
-        // 商品货品表litemall_product
-        for (LitemallGoodsProduct product : products) {
-            product.setGoodsId(goods.getId());
-            productService.add(product);
-        }
 
         return ResponseUtil.ok();
     }
@@ -203,7 +183,6 @@ public class AdminGoodsService {
         goodsService.deleteById(gid);
         specificationService.deleteByGid(gid);
         attributeService.deleteByGid(gid);
-        productService.deleteByGid(gid);
         return ResponseUtil.ok();
     }
 
@@ -217,7 +196,6 @@ public class AdminGoodsService {
         LitemallGoods goods = goodsAllinone.getGoods();
         LitemallGoodsAttribute[] attributes = goodsAllinone.getAttributes();
         LitemallGoodsSpecification[] specifications = goodsAllinone.getSpecifications();
-        LitemallGoodsProduct[] products = goodsAllinone.getProducts();
 
         String name = goods.getName();
         if (goodsService.checkExistByName(name)) {
@@ -248,11 +226,6 @@ public class AdminGoodsService {
             attributeService.add(attribute);
         }
 
-        // 商品货品表litemall_product
-        for (LitemallGoodsProduct product : products) {
-            product.setGoodsId(goods.getId());
-            productService.add(product);
-        }
         return ResponseUtil.ok();
     }
 
@@ -299,7 +272,6 @@ public class AdminGoodsService {
 
     public Object detail(Integer id) {
         LitemallGoods goods = goodsService.findById(id);
-        List<LitemallGoodsProduct> products = productService.queryByGid(id);
         List<LitemallGoodsSpecification> specifications = specificationService.queryByGid(id);
         List<LitemallGoodsAttribute> attributes = attributeService.queryByGid(id);
 
@@ -314,10 +286,8 @@ public class AdminGoodsService {
         Map<String, Object> data = new HashMap<>();
         data.put("goods", goods);
         data.put("specifications", specifications);
-        data.put("products", products);
         data.put("attributes", attributes);
         data.put("categoryIds", categoryIds);
-
         return ResponseUtil.ok(data);
     }
 

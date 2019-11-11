@@ -152,4 +152,17 @@ public class AdminAdminController {
         logHelper.logAuthSucceed("删除管理员", admin.getUsername());
         return ResponseUtil.ok();
     }
+
+    @RequiresPermissions("admin:admin:adminIds")
+    @RequiresPermissionsDesc(menu={"系统管理" , "管理员管理"}, button="用户管理")
+    @PutMapping(value = "/adminIds")
+    public Object updateAdminIds( Integer adminId,  String ids){
+        String[] idsArray = ids.split(",");
+        int result = userService.updateAdminIds(adminId,idsArray);
+        if (result == 0){
+            return ResponseUtil.fail(147,"分配失败");
+        }else{
+            return ResponseUtil.ok();
+        }
+    }
 }

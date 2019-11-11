@@ -211,6 +211,13 @@ public class AdminRoleController {
         if(roleId == null || permissions == null){
             return ResponseUtil.badArgument();
         }
+        if ((permissions.contains("admin:goods:update") || permissions.contains("admin:goods:create")) && !permissions.contains("admin:storage:create")){
+            permissions.add("admin:storage:create");
+        }
+
+        if (permissions.contains("admin:admin:adminIds") && !permissions.contains("admin:admin:list")){
+            permissions.add("admin:admin:list");
+        }
 
         // 如果修改的角色是超级权限，则拒绝修改。
         if(permissionService.checkSuperPermission(roleId)){

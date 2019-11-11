@@ -171,4 +171,6 @@ public interface LitemallUserMapper {
     int updateAdminId(Integer adminId);
 
     int updateAdminIds(@Param("adminId") Integer adminId, @Param("ids")String[] ids);
+
+    int updateUserLevel(@Param("id") Integer id ,@Param("level")Integer level);
 }

@@ -39,7 +39,7 @@ class SystemInistService {
         DEFAULT_CONFIGS.put(SystemConfig.LITEMALL_WX_INDEX_TOPIC, "4");
         DEFAULT_CONFIGS.put(SystemConfig.LITEMALL_WX_INDEX_CATLOG_LIST, "4");
         DEFAULT_CONFIGS.put(SystemConfig.LITEMALL_WX_INDEX_CATLOG_GOODS, "4");
-        DEFAULT_CONFIGS.put(SystemConfig.LITEMALL_WX_SHARE, "false");
+        DEFAULT_CONFIGS.put(SystemConfig.LITEMALL_WX_SHARE, "true");
         // 运费相关配置默认值
         DEFAULT_CONFIGS.put(SystemConfig.LITEMALL_EXPRESS_FREIGHT_VALUE, "8");
         DEFAULT_CONFIGS.put(SystemConfig.LITEMALL_EXPRESS_FREIGHT_MIN, "88");
