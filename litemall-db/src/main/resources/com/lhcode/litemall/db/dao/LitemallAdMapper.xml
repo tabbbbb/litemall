@@ -520,4 +520,5 @@
       update litemall_ad set enabled = 0
       where position = #{position}
     </update>
+
 </mapper>

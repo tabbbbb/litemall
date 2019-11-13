@@ -160,4 +160,7 @@ public interface LitemallAdMapper {
 
 
     int updateEnabled(Integer position);
+
+
+
 }

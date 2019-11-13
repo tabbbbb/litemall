@@ -16,7 +16,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 public @interface Sort {
     String message() default "排序字段不支持";
 
-    String[] accepts() default {"add_time", "id"};
+    String[] accepts() default {"add_time", "id", "is_start"};
 
     Class<?>[] groups() default {};
 

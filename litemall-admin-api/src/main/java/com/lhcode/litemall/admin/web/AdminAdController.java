@@ -40,6 +40,7 @@ public class AdminAdController {
         List<LitemallAd> adList = adService.querySelective(position, enabled, page, limit, sort, order);
         for (LitemallAd litemallAd : adList) {
             litemallAd.setUrlList();
+            litemallAd.setLinkList();
         }
         long total = PageInfo.of(adList).getTotal();
         Map<String, Object> data = new HashMap<>();
