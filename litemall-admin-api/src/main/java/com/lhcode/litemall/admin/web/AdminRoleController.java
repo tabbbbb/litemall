@@ -24,6 +24,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.util.StringUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import springfox.documentation.annotations.ApiIgnore;
 
 import javax.validation.constraints.NotNull;
 import java.util.*;
@@ -31,6 +32,7 @@ import java.util.*;
 @RestController
 @RequestMapping("/admin/role")
 @Validated
+@ApiIgnore
 public class AdminRoleController {
     private final Log logger = LogFactory.getLog(AdminRoleController.class);
 

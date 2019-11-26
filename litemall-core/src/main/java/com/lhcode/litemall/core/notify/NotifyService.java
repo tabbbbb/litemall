@@ -58,7 +58,7 @@ public class NotifyService {
     @Async
     public void notifySmsTemplate(String phoneNumber, NotifyType notifyType, String[] params) {
         if (smsSender == null) {
-            return;
+            smsSender = new TencentSmsSender();
         }
 
         String templateIdStr = getTemplateId(notifyType, smsTemplate);

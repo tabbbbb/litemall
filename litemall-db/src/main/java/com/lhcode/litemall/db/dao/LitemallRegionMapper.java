@@ -130,4 +130,6 @@ public interface LitemallRegionMapper {
      * @mbg.generated
      */
     int updateByPrimaryKey(LitemallRegion record);
+
+
 }

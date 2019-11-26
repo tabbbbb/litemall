@@ -18,10 +18,12 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import springfox.documentation.annotations.ApiIgnore;
 
 @RestController
 @RequestMapping("/admin/profile")
 @Validated
+@ApiIgnore
 public class AdminProfileController {
     private final Log logger = LogFactory.getLog(AdminProfileController.class);
 

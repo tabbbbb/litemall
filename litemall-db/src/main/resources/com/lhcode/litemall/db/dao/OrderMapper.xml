@@ -34,15 +34,6 @@
             <if test="order.freightPrice != null">
                 freight_price = #{order.freightPrice,jdbcType=DECIMAL},
             </if>
-            <if test="order.couponPrice != null">
-                coupon_price = #{order.couponPrice,jdbcType=DECIMAL},
-            </if>
-            <if test="order.integralPrice != null">
-                integral_price = #{order.integralPrice,jdbcType=DECIMAL},
-            </if>
-            <if test="order.grouponPrice != null">
-                groupon_price = #{order.grouponPrice,jdbcType=DECIMAL},
-            </if>
             <if test="order.orderPrice != null">
                 order_price = #{order.orderPrice,jdbcType=DECIMAL},
             </if>

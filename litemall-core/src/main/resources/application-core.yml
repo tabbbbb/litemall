@@ -5,7 +5,7 @@ litemall:
     app-secret: b3f00d4f9c6b92e5639e20557fc9727d
     mch-id: 1546464881
     mch-key: 33cbc407ecf54de38d41cc3660924911
-    notify-url: http://localhost:8080/wx/order/pay-notify
+    notify-url: http://5sinm6.natappfree.cc/wx/order/pay-notify
     # 商户证书文件路径
     # 请参考“商户证书”一节 https://pay.weixin.qq.com/wiki/doc/api/wxa/wxa_api.php?chapter=4_3
     key-path: /opt/develop/cert/
@@ -25,17 +25,11 @@ litemall:
     # 短信息用于通知客户，例如发货短信通知，注意配置格式；template-name，template-templateId 请参考 NotifyType 枚举值
     sms:
       enable: true
-      appid: 1400259309
-      appkey: 6c7ae5c2a2b6b1c4c2be7d3196f9930f
+      appid: 1400254922
+      appkey: 4f203cce3b07e03bf2471e44b2a5bb21
       template:
-      - name: paySucceed
-        templateId: 156349
-      - name: 建材商城
-        templateId: 422142
-      - name: ship
-        templateId: 158002
-      - name: refund
-        templateId: 159447
+      - name: 水果商城
+        templateId: 418781
 
     # 微信模版通知配置
     # 微信模版用于通知客户或者运营者，注意配置格式；template-name，template-templateId 请参考 NotifyType 枚举值
@@ -92,7 +86,7 @@ litemall:
     local:
       storagePath: storage
       # 这个地方应该是wx模块的WxStorageController的fetch方法对应的地址
-      address: http://127.0.0.1:8080/wx/storage/fetch/
+      address: http://192.168.0.108:8080/wx/storage/fetch/
     # 阿里云对象存储配置信息
     aliyun:
       endpoint: oss-cn-shenzhen.aliyuncs.com

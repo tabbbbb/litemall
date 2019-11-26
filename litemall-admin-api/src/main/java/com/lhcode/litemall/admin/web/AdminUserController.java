@@ -18,6 +18,7 @@ import org.apache.shiro.subject.Subject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import springfox.documentation.annotations.ApiIgnore;
 
 import javax.xml.ws.Response;
 import java.util.ArrayList;
@@ -28,6 +29,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/admin/user")
 @Validated
+@ApiIgnore
 public class AdminUserController {
     private final Log logger = LogFactory.getLog(AdminUserController.class);
 
@@ -99,11 +101,11 @@ public class AdminUserController {
     @RequiresPermissions("admin:user:userLevel")
     @RequiresPermissionsDesc(menu={"用户管理" , "会员管理"}, button="用户会员等级修改")
     @PutMapping(value = "/userLevel")
-    public Object updateUserLevel(Integer id, Integer level){
-        if (id == null || level == null){
+    public Object updateUserLevel(Integer id, Integer userLevel){
+        if (id == null || userLevel == null){
             return ResponseUtil.fail(568,"参数错误");
         }else{
-            userService.updateUserLevel(id,level);
+            userService.updateUserLevel(id,userLevel);
             return ResponseUtil.ok();
         }
     }

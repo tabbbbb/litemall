@@ -1,26 +1,40 @@
 package com.lhcode.litemall.db.domain;
 
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
+
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+@ApiModel(value = "LitemallGoodsSpecification",description = "商品规格")
 public class LitemallGoodsSpecification {
 
 
 
 
     private Integer number;
-
+    @ApiModelProperty("一类价格")
     private BigDecimal onePrice;
-
+    @ApiModelProperty("二类价格")
     private BigDecimal twoPrice;
-
+    @ApiModelProperty("三类价格")
     private BigDecimal threePrice;
-
+    @ApiModelProperty("专柜价格")
     private BigDecimal counterPrice;
-
+    @ApiModelProperty("是否默认")
     private Integer isDefault;
+    @ApiModelProperty("显示价格")
+    private BigDecimal price;
+
+    public BigDecimal getPrice() {
+        return price;
+    }
+
+    public void setPrice(BigDecimal price) {
+        this.price = price;
+    }
 
     public Integer getIsDefault() {
         return isDefault;
@@ -104,6 +118,7 @@ public class LitemallGoodsSpecification {
      *
      * @mbg.generated
      */
+    @ApiModelProperty("所属商品")
     private Integer goodsId;
 
     /**
@@ -113,6 +128,7 @@ public class LitemallGoodsSpecification {
      *
      * @mbg.generated
      */
+    @ApiModelProperty("规格名称")
     private String specification;
 
     /**
@@ -122,6 +138,7 @@ public class LitemallGoodsSpecification {
      *
      * @mbg.generated
      */
+    @ApiModelProperty("规格值")
     private String value;
 
     /**
@@ -131,6 +148,7 @@ public class LitemallGoodsSpecification {
      *
      * @mbg.generated
      */
+    @ApiModelProperty("规格图片")
     private String picUrl;
 
     /**

@@ -189,7 +189,7 @@
     </selectKey>
     insert into litemall_viplevel (vip_type, vip_count, discount, 
       ratio)
-    values (#{vipType,jdbcType=VARCHAR}, #{vipCount,jdbcType=INTEGER}, #{discount,jdbcType=VARCHAR}, 
+    values (#{vipType,jdbcType=VARCHAR}, #{vipCount,jdbcType=INTEGER}, #{discount,jdbcType=VARCHAR},
       #{ratio,jdbcType=VARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="com.lhcode.litemall.db.domain.LitemallViplevel">
@@ -361,5 +361,10 @@
   </select>
   <select id="selectCount" resultType="java.lang.Integer">
     select count(1) from litemall_viplevel
+  </select>
+  <select id="getLowLevelId" resultType="java.lang.Integer">
+      select id from litemall_viplevel
+      order by discount DESC
+      limit 1
   </select>
 </mapper>

@@ -4,7 +4,8 @@ public enum NotifyType {
     PAY_SUCCEED("paySucceed"),
     SHIP("ship"),
     REFUND("refund"),
-    CAPTCHA("captcha");
+    CAPTCHA("captcha"),
+    SHUIGUO("水果商城");
 
     private String type;
 

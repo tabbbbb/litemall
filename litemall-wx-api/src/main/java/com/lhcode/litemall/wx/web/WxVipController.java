@@ -43,7 +43,7 @@ public class WxVipController {
         Map<String, Object> result = new HashMap<>();
         LitemallUser user= litemallUserService.findById(userId);
         Map<String,Object> map = vipLevelService.queryVipGrade(user.getVipIndex());
-        if(map.size()>0&&map.get("discount")!=null){
+        if(map.size()>0 && map.get("discount")!=null){
 
             List<LitemallViplevel> viplist = vipLevelService.queryVipList();
             result.put("discount", map.get("discount"));
@@ -53,12 +53,6 @@ public class WxVipController {
         String nextclass = vipLevelService.queryNextClass(user.getVipIndex());
         result.put("nextclass", nextclass);
         result.put("vipindex", user.getVipIndex());
-
-
-
-
-
-
         return ResponseUtil.ok(result);
     }
 

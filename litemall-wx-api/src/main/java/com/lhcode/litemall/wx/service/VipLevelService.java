@@ -65,6 +65,10 @@ public class VipLevelService {
         return vipl;
     }
 
+    public int getLowLevelId(){
+        return viplevelMapper.getLowLevelId();
+    }
+
 
 
 

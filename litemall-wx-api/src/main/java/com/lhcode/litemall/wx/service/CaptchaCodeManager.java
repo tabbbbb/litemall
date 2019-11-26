@@ -1,6 +1,7 @@
 package com.lhcode.litemall.wx.service;
 
 import com.lhcode.litemall.wx.dao.CaptchaItem;
+import jdk.internal.dynalink.beans.StaticClass;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
@@ -11,6 +12,9 @@ import java.util.Map;
  */
 public class CaptchaCodeManager {
     private static Map<String, CaptchaItem> captchaCodeCache = new HashMap<>();
+
+
+    private static Map<String, LocalDateTime> updateMobileTime = new HashMap<>();
 
     /**
      * 添加到缓存
@@ -59,5 +63,16 @@ public class CaptchaCodeManager {
         }
 
         return captchaCodeCache.get(phoneNumber).getCode();
+    }
+
+    public static void addUpdateMobil(String mobile) {
+        updateMobileTime.put(mobile, LocalDateTime.now().plusMinutes(5));
+    }
+
+    public static boolean isUpdateMobile(String mobile) {
+        if (updateMobileTime.get(mobile).isBefore(LocalDateTime.now())){
+            return false;
+        }
+        return true;
     }
 }

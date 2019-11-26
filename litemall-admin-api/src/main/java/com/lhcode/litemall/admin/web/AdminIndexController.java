@@ -5,13 +5,17 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.shiro.authz.annotation.*;
 import com.lhcode.litemall.core.util.ResponseUtil;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import springfox.documentation.annotations.ApiIgnore;
 
 @RestController
 @RequestMapping("/admin/index")
+@Validated
+@ApiIgnore
 public class AdminIndexController {
     private final Log logger = LogFactory.getLog(AdminIndexController.class);
 

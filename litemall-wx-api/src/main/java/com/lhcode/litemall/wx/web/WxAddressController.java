@@ -1,7 +1,9 @@
 package com.lhcode.litemall.wx.web;
 
+import com.lhcode.litemall.db.domain.LitemallAd;
 import com.lhcode.litemall.wx.annotation.LoginUser;
 import com.lhcode.litemall.wx.service.GetRegionService;
+import io.swagger.annotations.*;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import com.lhcode.litemall.core.util.RegexUtil;
@@ -14,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import springfox.documentation.annotations.ApiIgnore;
 
 import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
@@ -28,6 +31,7 @@ import java.util.concurrent.*;
 @RestController
 @RequestMapping("/wx/address")
 @Validated
+@Api(value = "/wx/address",description = "收货地址")
 public class WxAddressController extends GetRegionService {
 	private final Log logger = LogFactory.getLog(WxAddressController.class);
 
@@ -50,7 +54,9 @@ public class WxAddressController extends GetRegionService {
 	 * @return 收货地址列表
 	 */
 	@GetMapping("list")
-	public Object list(@LoginUser Integer userId) {
+	@ApiOperation(value = "用户收货地址列表",response =ResponseUtil.class ,notes = "data:{}",nickname = "用户收货地址列表")
+	
+	public Object list(@ApiIgnore @LoginUser Integer userId) {
 		if (userId == null) {
 			return ResponseUtil.unlogin();
 		}
@@ -63,6 +69,9 @@ public class WxAddressController extends GetRegionService {
 			addressVo.put("name", address.getName());
 			addressVo.put("mobile", address.getMobile());
 			addressVo.put("isDefault", address.getIsDefault());
+			addressVo.put("provinceId",address.getProvinceId());
+			addressVo.put("cityId",address.getCityId());
+			addressVo.put("areaId",address.getAreaId());
 			Callable<String> provinceCallable = () -> regionList.stream().filter(region -> region.getId().equals(address.getProvinceId())).findAny().orElse(null).getName();
 			Callable<String> cityCallable = () -> regionList.stream().filter(region -> region.getId().equals(address.getCityId())).findAny().orElse(null).getName();
 			Callable<String> areaCallable = () -> regionList.stream().filter(region -> region.getId().equals(address.getAreaId())).findAny().orElse(null).getName();
@@ -84,7 +93,6 @@ public class WxAddressController extends GetRegionService {
 				e.printStackTrace();
 			}
 			addressVo.put("detailedAddress", detailedAddress);
-
 			addressVoList.add(addressVo);
 		}
 		return ResponseUtil.ok(addressVoList);
@@ -98,7 +106,12 @@ public class WxAddressController extends GetRegionService {
 	 * @return 收货地址详情
 	 */
 	@GetMapping("detail")
-	public Object detail(@LoginUser Integer userId, @NotNull Integer id) {
+	@ApiOperation(value = "收货地址详情",response =ResponseUtil.class ,notes = "data:{}",nickname = "收货地址详情")
+	@ApiImplicitParams(value = {
+			@ApiImplicitParam(paramType="query",name="id",value="地址id",dataTypeClass = Integer.class,required = true),
+	})
+	
+	public Object detail(@ApiIgnore @LoginUser Integer userId, @NotNull Integer id) {
 		if (userId == null) {
 			return ResponseUtil.unlogin();
 		}
@@ -185,7 +198,8 @@ public class WxAddressController extends GetRegionService {
 	 * @return 添加或更新操作结果
 	 */
 	@PostMapping("save")
-	public Object save(@LoginUser Integer userId, @RequestBody LitemallAddress address) {
+	@ApiOperation(value = "添加或更新收货地址",response = ResponseUtil.class ,notes = "data:{id:地址id}",nickname = "添加或更新收货地址")
+	public Object save(@ApiIgnore @LoginUser Integer userId, @ApiParam(name="address",value = "添加或是修改地址",required = true) @RequestBody LitemallAddress address) {
 		if (userId == null) {
 			return ResponseUtil.unlogin();
 		}
@@ -220,7 +234,8 @@ public class WxAddressController extends GetRegionService {
 	 * @return 删除操作结果
 	 */
 	@PostMapping("delete")
-	public Object delete(@LoginUser Integer userId, @RequestBody LitemallAddress address) {
+	@ApiOperation(value = "删除收货地址",response = ResponseUtil.class ,nickname = "删除收货地址")
+	public Object delete(@ApiIgnore @LoginUser Integer userId,  @ApiParam(name="address",value = "要删除的地址（可以只传id，但必须是对象的格式）",required = true) @RequestBody LitemallAddress address) {
 		if (userId == null) {
 			return ResponseUtil.unlogin();
 		}

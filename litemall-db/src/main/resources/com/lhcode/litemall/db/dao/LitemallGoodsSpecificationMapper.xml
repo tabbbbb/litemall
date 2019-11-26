@@ -20,6 +20,7 @@
     <result column="three_price" jdbcType="DECIMAL" property="threePrice" />
     <result column="counter_price" jdbcType="DECIMAL" property="counterPrice" />
     <result column="number" jdbcType="INTEGER" property="number" />
+
   </resultMap>
   <sql id="Example_Where_Clause">
     <!--
@@ -432,7 +433,9 @@
       <if test="counterPrice != null">
         counter_price = #{counterPrice,jdbcType=DECIMAL},
       </if>
-
+      <if test="number != null">
+        number = #{number,jdbcType=INTEGER},
+      </if>
     </set>
     where id = #{id,jdbcType=INTEGER}
   </update>

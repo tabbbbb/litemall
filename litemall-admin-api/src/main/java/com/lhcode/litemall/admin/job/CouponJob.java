@@ -30,7 +30,7 @@ public class CouponJob {
      * TODO
      * 注意，因为是相隔一个小时检查，因此导致优惠券真正超时时间可能比设定时间延迟1个小时
      */
-    @Scheduled(fixedDelay = 60 * 60 * 1000)
+    //@Scheduled(fixedDelay = 60 * 60 * 1000)
     public void checkCouponExpired() {
         logger.info("系统开启任务检查优惠券是否已经过期");
 

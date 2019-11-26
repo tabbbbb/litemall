@@ -8,7 +8,14 @@ import com.lhcode.litemall.db.service.LitemallSpreadClassService;
 import com.lhcode.litemall.wx.annotation.LoginUser;
 import com.lhcode.litemall.wx.service.CaptchaCodeManager;
 import com.lhcode.litemall.wx.service.UserTokenManager;
+import com.lhcode.litemall.wx.service.VipLevelService;
 import com.lhcode.litemall.wx.util.WxResponseCode;
+import com.sun.org.apache.bcel.internal.classfile.Code;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import io.swagger.models.auth.In;
+import jodd.util.StringUtil;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import com.lhcode.litemall.core.notify.NotifyService;
@@ -32,6 +39,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import springfox.documentation.annotations.ApiIgnore;
 
 import javax.servlet.http.HttpServletRequest;
 import java.math.BigDecimal;
@@ -46,6 +54,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/wx/auth")
 @Validated
+@Api(value = "/wx/auth",description = "用户登录")
 public class WxAuthController {
     private final Log logger = LogFactory.getLog(WxAuthController.class);
 
@@ -57,6 +66,9 @@ public class WxAuthController {
 
     @Autowired
     private NotifyService notifyService;
+
+    @Autowired
+    private VipLevelService vipLevelService;
 
     @Autowired
     private CouponAssignService couponAssignService;
@@ -71,7 +83,8 @@ public class WxAuthController {
      * @param request 请求对象
      * @return 登录结果
      */
-    @PostMapping("login")
+
+    //@PostMapping("login")
     public Object login(@RequestBody String body, HttpServletRequest request) {
         String username = JacksonUtil.parseString(body, "username");
         String password = JacksonUtil.parseString(body, "password");
@@ -116,14 +129,14 @@ public class WxAuthController {
      * @param request     请求对象
      * @return 登录结果
      */
+    @ApiOperation(value = "微信登录",response = ResponseUtil.class,notes = "tokenExpire:过期时间")
     @PostMapping("login_by_weixin")
-    public Object loginByWeixin(@RequestBody WxLoginInfo wxLoginInfo, HttpServletRequest request) {
+    public Object loginByWeixin(@RequestBody @ApiParam(name = "wxLoginInfo",required = true,value = "微信的用户信息") WxLoginInfo wxLoginInfo, HttpServletRequest request) {
         String code = wxLoginInfo.getCode();
         UserInfo userInfo = wxLoginInfo.getUserInfo();
         if (code == null || userInfo == null) {
             return ResponseUtil.badArgument();
         }
-
         String sessionKey = null;
         String openId = null;
         try {
@@ -133,13 +146,9 @@ public class WxAuthController {
         } catch (Exception e) {
             e.printStackTrace();
         }
-
         if (sessionKey == null || openId == null) {
             return ResponseUtil.fail();
         }
-
-        LitemallSpreadclass spreadclass = spreadClassService.findByLevel(1);
-
         LitemallUser user = userService.queryByOid(openId);
         if (user == null) {
             user = new LitemallUser();
@@ -149,19 +158,13 @@ public class WxAuthController {
             user.setAvatar(userInfo.getAvatarUrl());
             user.setNickname(userInfo.getNickName());
             user.setGender(userInfo.getGender());
-            user.setUserLevel((byte) 0);
+            user.setUserLevel((byte) vipLevelService.getLowLevelId());
             user.setStatus((byte) 0);
             user.setLastLoginTime(LocalDateTime.now());
             user.setLastLoginIp(IpUtil.getIpAddr(request));
             user.setLevel(1);
-            if(null != spreadclass) {
-                user.setProfitPertage(new BigDecimal(spreadclass.getPertage()));
-            }
             user.setVipIndex("0");
             userService.add(user);
-
-            // 新用户发送注册优惠券
-            couponAssignService.assignForRegister(user.getId());
         } else {
             user.setLastLoginTime(LocalDateTime.now());
             user.setLastLoginIp(IpUtil.getIpAddr(request));
@@ -170,11 +173,16 @@ public class WxAuthController {
             }
         }
 
+
         // token
         UserToken userToken = UserTokenManager.generateToken(user.getId());
         userToken.setSessionKey(sessionKey);
 
         Map<Object, Object> result = new HashMap<Object, Object>();
+        result.put("isBindMobile",true);
+        if (StringUtil.isEmpty(user.getMobile())){
+            result.put("isBindMobile",false);
+        }
         result.put("token", userToken.getToken());
         result.put("tokenExpire", userToken.getExpireTime().toString());
         result.put("userInfo", userInfo);
@@ -189,7 +197,8 @@ public class WxAuthController {
      * @return
      */
     @PostMapping("regCaptcha")
-    public Object registerCaptcha(@RequestBody String body) {
+    @ApiOperation(value = "请求验证码",response = ResponseUtil.class,notes = "")
+    public Object registerCaptcha(@ApiParam(name = "body",value = "mobile:xxx")@RequestBody String body) {
         String phoneNumber = JacksonUtil.parseString(body, "mobile");
         if (StringUtils.isEmpty(phoneNumber)) {
             return ResponseUtil.badArgument();
@@ -201,16 +210,89 @@ public class WxAuthController {
         if (!notifyService.isSmsEnable()) {
             return ResponseUtil.fail(WxResponseCode.AUTH_CAPTCHA_UNSUPPORT, "小程序后台验证码服务不支持");
         }
-        String code = CharUtil.getRandomNum(6);
-        notifyService.notifySmsTemplate(phoneNumber, NotifyType.CAPTCHA, new String[]{code,"1"});
 
+        String code = CharUtil.getRandomNum(6);
         boolean successful = CaptchaCodeManager.addToCache(phoneNumber, code);
         if (!successful) {
             return ResponseUtil.fail(WxResponseCode.AUTH_CAPTCHA_FREQUENCY, "验证码未超时1分钟，不能发送");
         }
-
+        notifyService.notifySmsTemplate(phoneNumber, NotifyType.SHUIGUO, new String[]{code,"1"});
         return ResponseUtil.ok();
     }
+
+
+
+
+    @PostMapping("bindMobile")
+    @ApiOperation(value = "绑定手机号",response = ResponseUtil.class,notes = "")
+    public Object bindMobile(@ApiParam(name = "body",value = "mobile: xxx\n" +
+            "                     code: xxx\nauthCode:xxx") @RequestBody String body){
+        String mobile = JacksonUtil.parseString(body,"mobile");
+        String code = JacksonUtil.parseString(body,"code");
+        String authCode = JacksonUtil.parseString(body,"authCode");
+        if (StringUtil.isEmpty(mobile) || StringUtil.isEmpty(code) || StringUtil.isEmpty(authCode)){
+            return ResponseUtil.badArgument();
+        }
+        if (CaptchaCodeManager.getCachedCaptcha(mobile).equals(authCode)){
+            String errmsg = userService.bindMobile(mobile,code);
+            if (errmsg.equals("成功")){
+                return ResponseUtil.ok();
+            }else{
+                return ResponseUtil.fail(007,errmsg);
+            }
+        }else {
+            return ResponseUtil.fail(231,"验证码输入错误");
+        }
+    }
+
+    @PostMapping("verifyMobile")
+    @ApiOperation(value = "修改时判断验证码是否正确",response = ResponseUtil.class,notes = "")
+    public Object verify(@LoginUser @ApiIgnore Integer userId, @ApiParam(name = "body",value = "mobile: xxx\n" +
+            "                     authCode:xxx") @RequestBody String body){
+        String mobile = JacksonUtil.parseString(body,"mobile");
+        String authCode = JacksonUtil.parseString(body,"authCode");
+        if (StringUtil.isEmpty(mobile)|| StringUtil.isEmpty(authCode)){
+            return ResponseUtil.badArgument();
+        }
+        if (userId == null)return ResponseUtil.unlogin();
+        if (CaptchaCodeManager.getCachedCaptcha(mobile).equals(authCode)){
+            CaptchaCodeManager.addUpdateMobil(mobile);
+            return ResponseUtil.ok();
+        }else{
+            return ResponseUtil.fail(231,"验证码输入错误");
+        }
+    }
+
+
+    @PostMapping("updateMobile")
+    @ApiOperation(value = "修改手机号",response = ResponseUtil.class,notes = "")
+    public Object bindMobile(@LoginUser @ApiIgnore Integer userId,@ApiParam(name = "body",value = "mobile: xxx\n" +
+            "                     authCode:xxx")@RequestBody String body){
+        String mobile = JacksonUtil.parseString(body,"mobile");
+        String authCode = JacksonUtil.parseString(body,"authCode");
+        if (StringUtil.isEmpty(mobile) || StringUtil.isEmpty(authCode)){
+            return ResponseUtil.badArgument();
+        }
+        LitemallUser user = userService.findById(userId);
+        if (CaptchaCodeManager.isUpdateMobile(user.getMobile())){
+            if (CaptchaCodeManager.getCachedCaptcha(mobile).equals(authCode)){
+                user.setMobile(mobile);
+                userService.updateMobile(user);
+                return ResponseUtil.ok();
+            }else{
+                return ResponseUtil.fail(231,"验证码输入错误");
+            }
+        }else{
+            return ResponseUtil.fail(231,"修改时间过期");
+        }
+    }
+
+
+
+
+
+
+
 
     /**
      * 账号注册
@@ -238,7 +320,7 @@ public class WxAuthController {
      * }
      * 失败则 { errno: XXX, errmsg: XXX }
      */
-    @PostMapping("register")
+    //@PostMapping("register")
     public Object register(@RequestBody String body, HttpServletRequest request) {
         String username = JacksonUtil.parseString(body, "username");
         String password = JacksonUtil.parseString(body, "password");
@@ -357,7 +439,7 @@ public class WxAuthController {
      * 成功则 { errno: 0, errmsg: '成功' }
      * 失败则 { errno: XXX, errmsg: XXX }
      */
-    @PostMapping("reset")
+    //@PostMapping("reset")
     public Object reset(@RequestBody String body, HttpServletRequest request) {
         String password = JacksonUtil.parseString(body, "password");
         String mobile = JacksonUtil.parseString(body, "mobile");
@@ -393,7 +475,7 @@ public class WxAuthController {
         return ResponseUtil.ok();
     }
 
-    @PostMapping("bindPhone")
+   // @PostMapping("bindPhone")
     public Object bindPhone(@LoginUser Integer userId, @RequestBody String body) {
         String sessionKey = UserTokenManager.getSessionKey(userId);
         String encryptedData = JacksonUtil.parseString(body, "encryptedData");
@@ -412,12 +494,23 @@ public class WxAuthController {
         return ResponseUtil.ok();
     }
 
-    @PostMapping("logout")
+    //@PostMapping("logout")
     public Object logout(@LoginUser Integer userId) {
         if (userId == null) {
             return ResponseUtil.unlogin();
         }
         UserTokenManager.removeToken(userId);
         return ResponseUtil.ok();
+    }
+
+    @PostMapping("loginToken")
+    @ApiOperation(value = "获取userId为9的用户token",response=UserToken.class)
+    public Object login(
+            @ApiParam(name = "body") @RequestBody String body
+    ){
+        // token
+        Integer id = JacksonUtil.parseInteger(body,"userId");
+        UserToken userToken = UserTokenManager.generateToken(id);
+        return userToken;
     }
 }

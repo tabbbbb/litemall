@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import springfox.documentation.annotations.ApiIgnore;
 
 import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
@@ -26,6 +27,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/admin/direct")
 @Validated
+@ApiIgnore
 public class AdminDirectController {
     private final Log logger = LogFactory.getLog(AdminDirectController.class);
 

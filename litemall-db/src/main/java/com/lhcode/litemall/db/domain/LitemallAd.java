@@ -1,13 +1,17 @@
 package com.lhcode.litemall.db.domain;
 
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
+
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+@ApiModel(value = "LitemallAd",description = "页面轮播图和其他图片")
 public class LitemallAd {
 
-
+    @ApiModelProperty(value = "图片列表")
     private String [] urlList;
 
     public String [] getUrlList() {
@@ -15,10 +19,14 @@ public class LitemallAd {
     }
 
     public void setUrlList() {
+        if (url == null || url == ""){
+            return;
+        }
+
         this.urlList = this.url.split(",");
 
     }
-
+    @ApiModelProperty(value = "goodsId列表")
     private String [] linkList;
 
     public String[] getLinkList() {
@@ -26,6 +34,9 @@ public class LitemallAd {
     }
 
     public void setLinkList() {
+        if (link == null || link == ""){
+            return;
+        }
         this.linkList = this.link.split(",");
     }
 
@@ -54,6 +65,7 @@ public class LitemallAd {
      *
      * @mbg.generated
      */
+    @ApiModelProperty(value = "主键")
     private Integer id;
 
     /**
@@ -63,6 +75,7 @@ public class LitemallAd {
      *
      * @mbg.generated
      */
+    @ApiModelProperty(value = "标题")
     private String name;
 
     /**
@@ -72,6 +85,7 @@ public class LitemallAd {
      *
      * @mbg.generated
      */
+    @ApiModelProperty(value = "跳转链接")
     private String link;
 
     /**
@@ -81,6 +95,7 @@ public class LitemallAd {
      *
      * @mbg.generated
      */
+    @ApiModelProperty(value = "图片")
     private String url;
 
     /**
@@ -90,6 +105,7 @@ public class LitemallAd {
      *
      * @mbg.generated
      */
+    @ApiModelProperty(value = "图片位置",name="1：轮播图，2：位置1...")
     private Byte position;
 
     /**

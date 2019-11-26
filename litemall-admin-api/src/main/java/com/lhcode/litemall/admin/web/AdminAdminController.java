@@ -21,6 +21,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import springfox.documentation.annotations.ApiIgnore;
 
 import javax.validation.constraints.NotNull;
 import java.util.HashMap;
@@ -30,6 +31,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/admin/admin")
 @Validated
+@ApiIgnore
 public class AdminAdminController {
     private final Log logger = LogFactory.getLog(AdminAdminController.class);
 

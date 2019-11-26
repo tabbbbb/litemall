@@ -1,5 +1,6 @@
 package com.lhcode.litemall.admin.service;
 
+import com.lhcode.litemall.admin.vo.GoodsRegionVo;
 import com.lhcode.litemall.db.domain.*;
 import com.lhcode.litemall.db.service.*;
 import com.github.pagehelper.PageInfo;
@@ -40,13 +41,15 @@ public class AdminGoodsService {
     private LitemallCartService cartService;
     @Autowired
     private LitemallOrderGoodsService orderGoodsService;
+    @Autowired
+    private LitemallRegionService regionService;
 
     @Autowired
     private QCodeService qCodeService;
 
-    public Object list(String goodsSn, String name,
+    public Object list(Boolean isNew,Boolean isHot,Boolean isSale,String goodsSn, String name,
                        Integer page, Integer limit, String sort, String order) {
-        List<LitemallGoods> goodsList = goodsService.querySelective(goodsSn, name, page, limit, sort, order);
+        List<LitemallGoods> goodsList = goodsService.querySelective(isNew,isHot,isSale,goodsSn, name, page, limit, sort, order);
         long total = PageInfo.of(goodsList).getTotal();
         Map<String, Object> data = new HashMap<>();
         data.put("total", total);
@@ -289,6 +292,23 @@ public class AdminGoodsService {
         data.put("attributes", attributes);
         data.put("categoryIds", categoryIds);
         return ResponseUtil.ok(data);
+    }
+
+
+    public Object getGoodsRegionVo(){
+        return ResponseUtil.ok(toGoodsRegionVo(regionService.toAll(0)));
+    }
+
+    private List<GoodsRegionVo> toGoodsRegionVo(List<LitemallRegion> regionList){
+        if (regionList == null || regionList.size() == 0) return null;
+        List<GoodsRegionVo> goodsRegionVoList = new ArrayList<>(regionList.size());
+        for (LitemallRegion region : regionList) {
+            GoodsRegionVo regionVo = new GoodsRegionVo();
+            regionVo.toThis(region);
+            regionVo.setChildren(toGoodsRegionVo(region.getChildren()));
+            goodsRegionVoList.add(regionVo);
+        }
+        return goodsRegionVoList;
     }
 
 }

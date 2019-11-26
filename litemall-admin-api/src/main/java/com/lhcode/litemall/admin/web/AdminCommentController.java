@@ -13,6 +13,7 @@ import com.lhcode.litemall.db.service.LitemallCommentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import springfox.documentation.annotations.ApiIgnore;
 
 import java.util.HashMap;
 import java.util.List;
@@ -21,6 +22,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/admin/comment")
 @Validated
+@ApiIgnore
 public class AdminCommentController {
     private final Log logger = LogFactory.getLog(AdminCommentController.class);
 

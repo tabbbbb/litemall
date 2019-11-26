@@ -46,6 +46,15 @@ public class LitemallAdService {
         return adMapper.selectByExample(example);
     }
 
+
+    public List<LitemallAd> getList(){
+        LitemallAdExample example = new LitemallAdExample();
+        LitemallAdExample.Criteria criteria = example.createCriteria();
+        criteria.andEnabledEqualTo(true);
+        criteria.andDeletedEqualTo(false);
+        return adMapper.selectByExample(example);
+    }
+
     public synchronized int updateById(LitemallAd ad) {
         ad.setUpdateTime(LocalDateTime.now());
         if (ad.getEnabled() == true){

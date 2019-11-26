@@ -1,5 +1,10 @@
 package com.lhcode.litemall.core.util;
 
+import com.lhcode.litemall.db.domain.LitemallAd;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -36,42 +41,76 @@ import java.util.Map;
  * 具体见litemall-wx-api模块的WxResponseCode。
  * </ul>
  */
+@ApiModel(value = "返回数据")
 public class ResponseUtil {
+
+    @ApiModelProperty(value = "错误码")
+    private Integer errno;
+    @ApiModelProperty(value = "数据")
+    private Object data;
+    @ApiModelProperty(value = "信息")
+    private String errmsg;
+
+    public Integer getErrno() {
+        return errno;
+    }
+
+    public void setErrno(Integer errno) {
+        this.errno = errno;
+    }
+
+    public Object getData() {
+        return data;
+    }
+
+    public void setData(Object data) {
+        this.data = data;
+    }
+
+    public String getErrmsg() {
+        return errmsg;
+    }
+
+    public void setErrmsg(String errmsg) {
+        this.errmsg = errmsg;
+    }
+
     public static Object ok() {
-        Map<String, Object> obj = new HashMap<String, Object>();
-        obj.put("errno", 0);
-        obj.put("errmsg", "成功");
-        return obj;
+        ResponseUtil ok = new ResponseUtil();
+        ok.setErrmsg("成功");
+        ok.setErrno(0);
+        return ok;
     }
 
     public static Object ok(Object data) {
-        Map<String, Object> obj = new HashMap<String, Object>();
-        obj.put("errno", 0);
-        obj.put("errmsg", "成功");
-        obj.put("data", data);
-        return obj;
+        ResponseUtil ok = new ResponseUtil();
+        ok.setErrmsg("成功");
+        ok.setErrno(0);
+        ok.setData(data);
+
+        return ok;
     }
 
     public static Object ok(String errmsg, Object data) {
-        Map<String, Object> obj = new HashMap<String, Object>();
-        obj.put("errno", 0);
-        obj.put("errmsg", errmsg);
-        obj.put("data", data);
-        return obj;
+        ResponseUtil ok = new ResponseUtil();
+        ok.setErrmsg(errmsg);
+        ok.setErrno(0);
+        ok.setData(data);
+        return ok;
     }
 
     public static Object fail() {
-        Map<String, Object> obj = new HashMap<String, Object>();
-        obj.put("errno", -1);
-        obj.put("errmsg", "错误");
-        return obj;
+        ResponseUtil fail = new ResponseUtil();
+        fail.setErrmsg("错误");
+        fail.setErrno(-1);
+        return fail;
     }
 
     public static Object fail(int errno, String errmsg) {
-        Map<String, Object> obj = new HashMap<String, Object>();
-        obj.put("errno", errno);
-        obj.put("errmsg", errmsg);
-        return obj;
+        ResponseUtil fail = new ResponseUtil();
+        fail.setErrmsg(errmsg);
+        fail.setErrno(errno);
+        return fail;
     }
 
     public static Object badArgument() {

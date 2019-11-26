@@ -11,12 +11,14 @@ import com.lhcode.litemall.db.service.LitemallSystemConfigService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import springfox.documentation.annotations.ApiIgnore;
 
 import java.util.Map;
 
 @RestController
 @RequestMapping("/admin/config")
 @Validated
+@ApiIgnore
 public class AdminConfigController {
     private final Log logger = LogFactory.getLog(AdminConfigController.class);
 

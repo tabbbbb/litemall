@@ -18,6 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
+import org.springframework.web.bind.annotation.RequestBody;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -36,8 +37,6 @@ public class AdminOrderService {
     private LitemallOrderGoodsService orderGoodsService;
     @Autowired
     private LitemallOrderService orderService;
-    @Autowired
-    private LitemallGoodsProductService productService;
     @Autowired
     private LitemallUserService userService;
     @Autowired
@@ -123,7 +122,7 @@ public class AdminOrderService {
 
         // 如果订单不是退款状态，则不能退款
         if (!order.getOrderStatus().equals(OrderUtil.STATUS_REFUND)) {
-            return ResponseUtil.fail(ORDER_CONFIRM_NOT_ALLOWED, "订单不能确认收货");
+            return ResponseUtil.fail(ORDER_CONFIRM_NOT_ALLOWED, "订单不能退款");
         }
 
         // 微信退款
@@ -146,10 +145,6 @@ public class AdminOrderService {
             logger.warn("refund fail: " + wxPayRefundResult.getReturnMsg());
             return ResponseUtil.fail(ORDER_REFUND_FAILED, "订单退款失败");
         }
-        if (!wxPayRefundResult.getResultCode().equals("SUCCESS")) {
-            logger.warn("refund fail: " + wxPayRefundResult.getReturnMsg());
-            return ResponseUtil.fail(ORDER_REFUND_FAILED, "订单退款失败");
-        }
 
         // 设置订单取消状态
         order.setOrderStatus(OrderUtil.STATUS_REFUND_CONFIRM);
@@ -157,15 +152,8 @@ public class AdminOrderService {
             throw new RuntimeException("更新数据已失效");
         }
 
-        // 商品货品数量增加
-        List<LitemallOrderGoods> orderGoodsList = orderGoodsService.queryByOid(orderId);
-        for (LitemallOrderGoods orderGoods : orderGoodsList) {
-            Integer productId = orderGoods.getProductId();
-            Short number = orderGoods.getNumber();
-            if (productService.addStock(productId, number) == 0) {
-                throw new RuntimeException("商品货品库存增加失败");
-            }
-        }
+        orderService.cancelOrder(order.getId());
+
 
         //TODO 发送邮件和短信通知，这里采用异步发送
         // 退款成功通知用户, 例如“您申请的订单退款 [ 单号:{1} ] 已成功，请耐心等待到账。”
@@ -188,9 +176,7 @@ public class AdminOrderService {
      */
     public Object ship(String body) {
         Integer orderId = JacksonUtil.parseInteger(body, "orderId");
-        String shipSn = JacksonUtil.parseString(body, "shipSn");
-        String shipChannel = JacksonUtil.parseString(body, "shipChannel");
-        if (orderId == null || shipSn == null || shipChannel == null) {
+        if (orderId == null) {
             return ResponseUtil.badArgument();
         }
 
@@ -201,12 +187,10 @@ public class AdminOrderService {
 
         // 如果订单不是已付款状态，则不能发货
         if (!order.getOrderStatus().equals(OrderUtil.STATUS_PAY)) {
-            return ResponseUtil.fail(ORDER_CONFIRM_NOT_ALLOWED, "订单不能确认收货");
+            return ResponseUtil.fail(ORDER_CONFIRM_NOT_ALLOWED, "订单不能发货");
         }
 
         order.setOrderStatus(OrderUtil.STATUS_SHIP);
-        order.setShipSn(shipSn);
-        order.setShipChannel(shipChannel);
         order.setShipTime(LocalDateTime.now());
         if (orderService.updateWithOptimisticLocker(order) == 0) {
             return ResponseUtil.updatedDateExpired();
@@ -215,7 +199,7 @@ public class AdminOrderService {
         //TODO 发送邮件和短信通知，这里采用异步发送
         // 发货会发送通知短信给用户:          *
         // "您的订单已经发货，快递公司 {1}，快递单 {2} ，请注意查收"
-        notifyService.notifySmsTemplate(order.getMobile(), NotifyType.SHIP, new String[]{shipChannel, shipSn});
+        notifyService.notifySmsTemplate(order.getMobile(), NotifyType.SHIP, new String[]{"自配送", "无"});
 
         logHelper.logOrderSucceed("发货", "订单编号 " + orderId);
         return ResponseUtil.ok();
@@ -248,6 +232,18 @@ public class AdminOrderService {
 
         litemallComment.setReply(reply);
         commentService.updateById(litemallComment);
+        return ResponseUtil.ok();
+    }
+
+
+    public Object notarize( String body){
+        Integer orderId = JacksonUtil.parseInteger(body,"orderId");
+        LitemallOrder order = orderService.findById(orderId);
+        if (order.getOrderStatus() != 301){
+            return ResponseUtil.fail();
+        }
+        order.setOrderStatus((short) 401);
+        order.setActualPrice(order.getOrderPrice());
         return ResponseUtil.ok();
     }
 

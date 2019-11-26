@@ -1,13 +1,13 @@
 pagehelper:
   helperDialect:  mysql
-  reasonable: true
+  reasonable: false
   supportMethodsArguments:  true
   params: count=countSql
 
 spring:
   datasource:
     druid:
-      url:  jdbc:mysql://localhost:3306/lhmall?useUnicode=true&characterEncoding=UTF-8&serverTimezone=UTC&allowPublicKeyRetrieval=true&verifyServerCertificate=false&useSSL=false
+      url:  jdbc:mysql://192.168.0.108:3306/lhmall?useUnicode=true&characterEncoding=UTF-8&serverTimezone=UTC&allowPublicKeyRetrieval=true&verifyServerCertificate=false&useSSL=false
       driver-class-name:  com.mysql.jdbc.Driver
       username:  root
       password:  123456

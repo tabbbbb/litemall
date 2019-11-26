@@ -1,11 +1,9 @@
 package com.lhcode.litemall.db.service;
 
-import com.lhcode.litemall.db.domain.LitemallUser;
+import com.lhcode.litemall.db.domain.*;
 import com.github.pagehelper.PageHelper;
 import com.lhcode.litemall.db.dao.LitemallOrderMapper;
 import com.lhcode.litemall.db.dao.OrderMapper;
-import com.lhcode.litemall.db.domain.LitemallOrder;
-import com.lhcode.litemall.db.domain.LitemallOrderExample;
 import com.lhcode.litemall.db.util.OrderUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -23,8 +21,15 @@ public class LitemallOrderService {
     private LitemallOrderMapper litemallOrderMapper;
     @Resource
     private OrderMapper orderMapper;
+
     @Autowired
     private LitemallUserService userService;
+
+    @Autowired
+    private LitemallOrderGoodsService orderGoodsService;
+
+    @Autowired
+    private LitemallGoodsSpecificationService goodsSpecificationService;
 
     public int add(LitemallOrder order) {
         order.setAddTime(LocalDateTime.now());
@@ -56,6 +61,12 @@ public class LitemallOrderService {
     public int countByOrderSn(Integer userId, String orderSn) {
         LitemallOrderExample example = new LitemallOrderExample();
         example.or().andUserIdEqualTo(userId).andOrderSnEqualTo(orderSn).andDeletedEqualTo(false);
+        return (int) litemallOrderMapper.countByExample(example);
+    }
+
+    public int countByOrderStatus(Integer userId,Short orderStatus){
+        LitemallOrderExample example = new LitemallOrderExample();
+        example.or().andUserIdEqualTo(userId).andOrderStatusEqualTo(orderStatus).andDeletedEqualTo(false);
         return (int) litemallOrderMapper.countByExample(example);
     }
 
@@ -101,7 +112,6 @@ public class LitemallOrderService {
             criteria.andAdminIdEqualTo(adminId);
         }
 
-        criteria.andDeletedEqualToUser(false);
 
         if (!StringUtils.isEmpty(sort) && !StringUtils.isEmpty(order)) {
             example.setOrderByClause(sort + " " + order);
@@ -149,37 +159,9 @@ public class LitemallOrderService {
         return litemallOrderMapper.selectOneByExample(example);
     }
 
-    public Map<Object, Object> orderInfo(Integer userId) {
-        LitemallOrderExample example = new LitemallOrderExample();
-        example.or().andUserIdEqualTo(userId).andDeletedEqualTo(false);
-        List<LitemallOrder> orders = litemallOrderMapper.selectByExampleSelective(example, LitemallOrder.Column.orderStatus, LitemallOrder.Column.comments);
 
-        int unpaid = 0;
-        int unship = 0;
-        int unrecv = 0;
-        int uncomment = 0;
-        for (LitemallOrder order : orders) {
-            if (OrderUtil.isCreateStatus(order)) {
-                unpaid++;
-            } else if (OrderUtil.isPayStatus(order)) {
-                unship++;
-            } else if (OrderUtil.isShipStatus(order)) {
-                unrecv++;
-            } else if (OrderUtil.isConfirmStatus(order) || OrderUtil.isAutoConfirmStatus(order)) {
-                uncomment += order.getComments();
-            } else {
-                // do nothing
-            }
-        }
 
-        Map<Object, Object> orderInfo = new HashMap<Object, Object>();
-        orderInfo.put("unpaid", unpaid);
-        orderInfo.put("unship", unship);
-        orderInfo.put("unrecv", unrecv);
-        orderInfo.put("uncomment", uncomment);
-        return orderInfo;
 
-    }
 
     public List<LitemallOrder> queryComment(int days) {
         LocalDateTime now = LocalDateTime.now();
@@ -187,5 +169,52 @@ public class LitemallOrderService {
         LitemallOrderExample example = new LitemallOrderExample();
         example.or().andCommentsGreaterThan((short) 0).andConfirmTimeLessThan(expired).andDeletedEqualTo(false);
         return litemallOrderMapper.selectByExample(example);
+    }
+
+
+    public int updateOrder(LitemallOrder order){
+        return litemallOrderMapper.updateByPrimaryKeySelective(order);
+    }
+
+
+
+    public List<LitemallOrder> getOrderAll(Integer userId,List<Short> status,Integer page,Integer size){
+        LitemallOrderExample example = new LitemallOrderExample();
+        if (status.size() == 0){
+            LitemallOrderExample.Criteria criteria = example.or();
+            criteria.andUserIdEqualTo(userId);
+            criteria.andDeletedEqualTo(false);
+        }else{
+            for (Short aShort : status) {
+                LitemallOrderExample.Criteria criteria = example.or();
+                criteria.andUserIdEqualTo(userId);
+                criteria.andOrderStatusEqualTo(aShort);
+                criteria.andDeletedEqualTo(false);
+            }
+        }
+        example.setOrderByClause("add_time desc");
+        PageHelper.startPage(page,size);
+        return litemallOrderMapper.selectByExample(example);
+    }
+
+
+    public List<LitemallOrder> getOrderStatus(Short status){
+        LitemallOrderExample example = new LitemallOrderExample();
+        LitemallOrderExample.Criteria criteria = example.createCriteria();
+        criteria.andOrderStatusEqualTo(status).andDeletedEqualTo(false);
+        return litemallOrderMapper.selectByExample(example);
+    }
+
+    /**
+     * 将库存返还到商品规格中去
+     * @param orderId
+     */
+    public void cancelOrder(Integer orderId){
+        List<LitemallOrderGoods> orderGoodsList = orderGoodsService.queryByOid(orderId);
+        for (LitemallOrderGoods orderGoods : orderGoodsList) {
+            LitemallGoodsSpecification goodsSpecification = goodsSpecificationService.findById(null, Integer.valueOf(orderGoods.getSpecifications()));
+            goodsSpecification.setNumber(goodsSpecification.getNumber()+orderGoods.getNumber());
+            goodsSpecificationService.update(goodsSpecification);
+        }
     }
 }

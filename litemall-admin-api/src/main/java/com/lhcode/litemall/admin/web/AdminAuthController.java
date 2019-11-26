@@ -25,6 +25,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.util.StringUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import springfox.documentation.annotations.ApiIgnore;
 
 import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;
@@ -33,6 +34,7 @@ import java.util.*;
 @RestController
 @RequestMapping("/admin/auth")
 @Validated
+@ApiIgnore
 public class AdminAuthController {
     private final Log logger = LogFactory.getLog(AdminAuthController.class);
 

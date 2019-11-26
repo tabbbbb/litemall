@@ -1,6 +1,12 @@
 package com.lhcode.litemall.wx.web;
 
 import com.lhcode.litemall.wx.annotation.LoginUser;
+import com.lhcode.litemall.wx.util.SearchGoods;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ResponseHeader;
+import io.swagger.models.auth.In;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import com.lhcode.litemall.core.util.ResponseUtil;
@@ -11,6 +17,7 @@ import com.lhcode.litemall.db.service.LitemallSearchHistoryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import springfox.documentation.annotations.ApiIgnore;
 
 import javax.validation.constraints.NotEmpty;
 import java.util.ArrayList;
@@ -26,6 +33,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/wx/search")
 @Validated
+@Api(value = "/wx/search",description = "搜索页")
 public class WxSearchController {
     private final Log logger = LogFactory.getLog(WxSearchController.class);
 
@@ -33,6 +41,9 @@ public class WxSearchController {
     private LitemallKeywordService keywordsService;
     @Autowired
     private LitemallSearchHistoryService searchHistoryService;
+
+    @Autowired
+    private SearchGoods searchGoods;
 
     /**
      * 搜索页面信息
@@ -44,12 +55,8 @@ public class WxSearchController {
      * @return 搜索页面信息
      */
     @GetMapping("index")
-    public Object index(@LoginUser Integer userId) {
-        //取出输入框默认的关键词
-        LitemallKeyword defaultKeyword = keywordsService.queryDefault();
-        //取出热闹关键词
-        List<LitemallKeyword> hotKeywordList = keywordsService.queryHots();
-
+    @ApiOperation(value = "获取历史搜索",response = ResponseUtil.class,notes = "data:{historyKeywordList:LitemallSearchHistory}")
+    public Object index(@ApiIgnore @LoginUser Integer userId) {
         List<LitemallSearchHistory> historyList = null;
         if (userId != null) {
             //取出用户历史关键字
@@ -57,34 +64,31 @@ public class WxSearchController {
         } else {
             historyList = new ArrayList<>(0);
         }
-
         Map<String, Object> data = new HashMap<String, Object>();
-        data.put("defaultKeyword", defaultKeyword);
         data.put("historyKeywordList", historyList);
-        data.put("hotKeywordList", hotKeywordList);
         return ResponseUtil.ok(data);
     }
 
-    /**
-     * 关键字提醒
-     * <p>
-     * 当用户输入关键字一部分时，可以推荐系统中合适的关键字。
-     *
-     * @param keyword 关键字
-     * @return 合适的关键字
-     */
-    @GetMapping("helper")
-    public Object helper(@NotEmpty String keyword,
-                         @RequestParam(defaultValue = "1") Integer page,
-                         @RequestParam(defaultValue = "10") Integer size) {
-        List<LitemallKeyword> keywordsList = keywordsService.queryByKeyword(keyword, page, size);
-        String[] keys = new String[keywordsList.size()];
-        int index = 0;
-        for (LitemallKeyword key : keywordsList) {
-            keys[index++] = key.getKeyword();
-        }
-        return ResponseUtil.ok(keys);
-    }
+//    /**
+//     * 关键字提醒
+//     * <p>
+//     * 当用户输入关键字一部分时，可以推荐系统中合适的关键字。
+//     *
+//     * @param keyword 关键字
+//     * @return 合适的关键字
+//     */
+//    @GetMapping("helper")
+//    public Object helper(@NotEmpty String keyword,
+//                         @RequestParam(defaultValue = "1") Integer page,
+//                         @RequestParam(defaultValue = "10") Integer size) {
+//        List<LitemallKeyword> keywordsList = keywordsService.queryByKeyword(keyword, page, size);
+//        String[] keys = new String[keywordsList.size()];
+//        int index = 0;
+//        for (LitemallKeyword key : keywordsList) {
+//            keys[index++] = key.getKeyword();
+//        }
+//        return ResponseUtil.ok(keys);
+//    }
 
     /**
      * 清除用户搜索历史
@@ -93,7 +97,8 @@ public class WxSearchController {
      * @return 清理是否成功
      */
     @PostMapping("clearhistory")
-    public Object clearhistory(@LoginUser Integer userId) {
+    @ApiOperation(value = "清除用户搜索历史",response = ResponseUtil.class,notes = "data:{}")
+    public Object clearhistory(@ApiIgnore @LoginUser Integer userId) {
         if (userId == null) {
             return ResponseUtil.unlogin();
         }
@@ -101,4 +106,15 @@ public class WxSearchController {
         searchHistoryService.deleteByUid(userId);
         return ResponseUtil.ok();
     }
+
+
+
+    @GetMapping("searchGoods")
+    @ApiOperation(value = "获取推荐商品",response = ResponseUtil.class,notes = "data:{}")
+    public Object getGoods(@ApiIgnore @LoginUser Integer userId){
+        return ResponseUtil.ok(searchGoods.getMap(userId));
+    }
+
+
+
 }

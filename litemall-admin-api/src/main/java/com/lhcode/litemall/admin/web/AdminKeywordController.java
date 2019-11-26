@@ -1,3 +1,4 @@
+/*
 package com.lhcode.litemall.admin.web;
 
 import com.lhcode.litemall.admin.annotation.RequiresPermissionsDesc;
@@ -14,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import springfox.documentation.annotations.ApiIgnore;
 
 import javax.validation.constraints.NotNull;
 import java.util.HashMap;
@@ -23,6 +25,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/admin/keyword")
 @Validated
+@ApiIgnore
 public class AdminKeywordController {
     private final Log logger = LogFactory.getLog(AdminKeywordController.class);
 
@@ -101,3 +104,4 @@ public class AdminKeywordController {
     }
 
 }
+*/

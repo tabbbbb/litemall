@@ -5,12 +5,14 @@ import com.github.qcloudsms.SmsSingleSenderResult;
 import com.github.qcloudsms.httpclient.HTTPException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 
 /*
  * 腾讯云短信服务
  */
+
 public class TencentSmsSender implements SmsSender {
     private final Log logger = LogFactory.getLog(TencentSmsSender.class);
 
@@ -46,7 +48,7 @@ public class TencentSmsSender implements SmsSender {
         try {
             SmsSingleSenderResult result = sender.sendWithParam("86", phone, templateId, params, "", "", "");
             logger.debug(result);
-
+            System.out.println("1");
             SmsResult smsResult = new SmsResult();
             smsResult.setSuccessful(true);
             smsResult.setResult(result);

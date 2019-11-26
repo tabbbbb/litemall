@@ -37,9 +37,9 @@ public class LitemallCollectService {
         return (int) collectMapper.countByExample(example);
     }
 
-    public LitemallCollect queryByTypeAndValue(Integer userId, Byte type, Integer valueId) {
+    public LitemallCollect queryByTypeAndValue(Integer userId, Integer valueId) {
         LitemallCollectExample example = new LitemallCollectExample();
-        example.or().andUserIdEqualTo(userId).andValueIdEqualTo(valueId).andTypeEqualTo(type).andDeletedEqualTo(false);
+        example.or().andUserIdEqualTo(userId).andValueIdEqualTo(valueId).andDeletedEqualTo(false);
         return collectMapper.selectOneByExample(example);
     }
 

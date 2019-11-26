@@ -12,12 +12,14 @@ import com.lhcode.litemall.db.domain.LitemallGoods;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import springfox.documentation.annotations.ApiIgnore;
 
 import javax.validation.constraints.NotNull;
 
 @RestController
 @RequestMapping("/admin/goods")
 @Validated
+@ApiIgnore
 public class AdminGoodsController {
     private final Log logger = LogFactory.getLog(AdminGoodsController.class);
 
@@ -38,12 +40,12 @@ public class AdminGoodsController {
     @RequiresPermissions("admin:goods:list")
     @RequiresPermissionsDesc(menu = {"商品管理", "商品管理"}, button = "查询")
     @GetMapping("/list")
-    public Object list(String goodsSn, String name,
+    public Object list(String goodsSn, String name,Boolean isNew,Boolean isHot,Boolean isSale,
                        @RequestParam(defaultValue = "1") Integer page,
                        @RequestParam(defaultValue = "10") Integer limit,
                        @Sort @RequestParam(defaultValue = "add_time") String sort,
                        @Order @RequestParam(defaultValue = "desc") String order) {
-        return adminGoodsService.list(goodsSn, name, page, limit, sort, order);
+        return adminGoodsService.list(isNew,isHot,isSale,goodsSn, name, page, limit, sort, order);
     }
 
     @GetMapping("/catAndBrand")
@@ -104,4 +106,15 @@ public class AdminGoodsController {
 
     }
 
+
+    /**
+     * 全部地区
+     *
+     * @param
+     * @return
+     */
+    @GetMapping("/region")
+    public Object region() {
+        return adminGoodsService.getGoodsRegionVo();
+    }
 }

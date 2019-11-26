@@ -2,6 +2,7 @@ package com.lhcode.litemall.db.dao;
 
 import java.util.List;
 
+import com.lhcode.litemall.db.domain.LitemallOrder;
 import com.lhcode.litemall.db.domain.LitemallOrderGoods;
 import com.lhcode.litemall.db.domain.LitemallOrderGoodsExample;
 import org.apache.ibatis.annotations.Param;
@@ -157,4 +158,7 @@ public interface LitemallOrderGoodsMapper {
      * @project https://github.com/itfsw/mybatis-generator-plugin
      */
     int logicalDeleteByPrimaryKey(Integer id);
+
+
+    int addListOrderGoods(List<LitemallOrderGoods> list);
 }

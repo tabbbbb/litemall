@@ -16,6 +16,7 @@ import org.springframework.util.StringUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import springfox.documentation.annotations.ApiIgnore;
 
 import javax.validation.constraints.NotNull;
 import java.io.IOException;
@@ -27,6 +28,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/admin/storage")
 @Validated
+@ApiIgnore
 public class AdminStorageController {
     private final Log logger = LogFactory.getLog(AdminStorageController.class);
 

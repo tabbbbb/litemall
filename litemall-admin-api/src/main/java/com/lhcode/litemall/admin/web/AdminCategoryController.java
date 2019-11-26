@@ -1,17 +1,18 @@
 package com.lhcode.litemall.admin.web;
 
 import com.lhcode.litemall.admin.annotation.RequiresPermissionsDesc;
+import com.lhcode.litemall.db.domain.LitemallCategory;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import com.lhcode.litemall.admin.vo.CategoryVO;
 import com.lhcode.litemall.core.util.ResponseUtil;
-import com.lhcode.litemall.db.domain.LitemallCategory;
 import com.lhcode.litemall.db.service.LitemallCategoryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import springfox.documentation.annotations.ApiIgnore;
 
 import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
@@ -22,6 +23,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/admin/category")
 @Validated
+@ApiIgnore
 public class AdminCategoryController {
     private final Log logger = LogFactory.getLog(AdminCategoryController.class);
 
@@ -33,7 +35,6 @@ public class AdminCategoryController {
     @GetMapping("/list")
     public Object list() {
         List<CategoryVO> categoryVOList = new ArrayList<>();
-
         List<LitemallCategory> categoryList = categoryService.queryByPid(0);
         for(LitemallCategory category : categoryList){
             CategoryVO categoryVO = new CategoryVO();
@@ -44,7 +45,8 @@ public class AdminCategoryController {
             categoryVO.setKeywords(category.getKeywords());
             categoryVO.setName(category.getName());
             categoryVO.setLevel(category.getLevel());
-
+            categoryVO.setStatus(category.getStatus());
+            categoryVO.setPid(category.getPid());
             List<CategoryVO> children = new ArrayList<>();
             List<LitemallCategory> subCategoryList = categoryService.queryByPid(category.getId());
             for(LitemallCategory subCategory : subCategoryList){
@@ -56,7 +58,8 @@ public class AdminCategoryController {
                 subCategoryVO.setKeywords(subCategory.getKeywords());
                 subCategoryVO.setName(subCategory.getName());
                 subCategoryVO.setLevel(subCategory.getLevel());
-
+                subCategoryVO.setStatus(subCategory.getStatus());
+                subCategoryVO.setPid(subCategory.getPid());
                 children.add(subCategoryVO);
             }
 

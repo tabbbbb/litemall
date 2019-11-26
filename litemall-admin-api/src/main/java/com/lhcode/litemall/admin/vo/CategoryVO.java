@@ -10,6 +10,25 @@ public class CategoryVO {
     private String iconUrl;
     private String picUrl;
     private String level;
+    private Integer status;
+    private Integer pid;
+
+    public Integer getPid() {
+        return pid;
+    }
+
+    public void setPid(Integer pid) {
+        this.pid = pid;
+    }
+
+    public Integer getStatus() {
+        return status;
+    }
+
+    public void setStatus(Integer status) {
+        this.status = status;
+    }
+
     private List<CategoryVO> children;
 
     public List<CategoryVO> getChildren() {

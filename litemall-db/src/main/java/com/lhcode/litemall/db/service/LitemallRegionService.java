@@ -58,4 +58,16 @@ public class LitemallRegionService {
         example.or().andPidEqualTo(id);
         return regionMapper.selectByExample(example);
     }
+
+    public  List<LitemallRegion> toAll(Integer pid){
+        List<LitemallRegion> list = queryChildren(pid);
+        if (list == null || list.size() == 0) return null;
+        for (LitemallRegion region : list) {
+            region.setChildren(toAll(region.getId()));
+        }
+        return list;
+    }
+
+
+
 }

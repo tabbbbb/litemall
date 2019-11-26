@@ -1,18 +1,29 @@
 package com.lhcode.litemall.db.domain;
 
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
+
 import java.util.Date;
 
+@ApiModel(value = "LitemallDirect",description = "主页的直通车")
 public class LitemallDirect {
+
+    @ApiModelProperty(value = "主键")
     private Integer id;
 
+    @ApiModelProperty(value = "标题")
     private String title;
 
+    @ApiModelProperty(value = "url")
     private String url;
 
+    @ApiModelProperty(value = "跳转链接")
     private String link;
 
+    @ApiModelProperty(value = "位置")
     private Integer position;
 
+    @ApiModelProperty(value = "是否启用")
     private Integer isStart;
 
     private Integer deleted;

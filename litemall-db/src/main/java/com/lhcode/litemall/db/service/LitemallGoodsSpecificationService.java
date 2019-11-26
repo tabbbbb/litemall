@@ -1,6 +1,7 @@
 package com.lhcode.litemall.db.service;
 
 import com.lhcode.litemall.db.dao.LitemallGoodsSpecificationMapper;
+import com.lhcode.litemall.db.domain.LitemallGoods;
 import com.lhcode.litemall.db.domain.LitemallGoodsSpecification;
 import com.lhcode.litemall.db.domain.LitemallGoodsSpecificationExample;
 import org.springframework.stereotype.Service;
@@ -17,15 +18,52 @@ public class LitemallGoodsSpecificationService {
     @Resource
     private LitemallGoodsSpecificationMapper goodsSpecificationMapper;
 
+    @Resource
+    private LitemallVipClassService vipService;
+
     public List<LitemallGoodsSpecification> queryByGid(Integer id) {
         LitemallGoodsSpecificationExample example = new LitemallGoodsSpecificationExample();
         example.or().andGoodsIdEqualTo(id).andDeletedEqualTo(false);
         return goodsSpecificationMapper.selectByExample(example);
     }
 
-    public LitemallGoodsSpecification findById(Integer id) {
-        return goodsSpecificationMapper.selectByPrimaryKey(id);
+    public List<LitemallGoodsSpecification> queryByGid(Integer userId,Integer goodsId){
+        LitemallGoodsSpecificationExample example = new LitemallGoodsSpecificationExample();
+        example.or().andGoodsIdEqualTo(goodsId).andDeletedEqualTo(false);
+        String discount = "1";
+        if (userId != null){
+            discount = vipService.getUserLevel(userId);
+        }
+        List<LitemallGoodsSpecification> specificationList = goodsSpecificationMapper.selectByExample(example);
+        for (LitemallGoodsSpecification specification : specificationList) {
+            this.goodSpecPriceChoose(discount,specification);
+        }
+        return specificationList;
     }
+
+    public LitemallGoodsSpecification findById(Integer userId,Integer id) {
+        String discount = "1";
+
+        if (userId != null){
+            discount = vipService.getUserLevel(userId);
+        }
+        LitemallGoodsSpecification goodsSpecification = goodsSpecificationMapper.selectByPrimaryKey(id);
+        goodSpecPriceChoose(discount,goodsSpecification);
+        return goodsSpecification;
+    }
+
+
+    private void goodSpecPriceChoose(String discount,LitemallGoodsSpecification goodsSpec){
+        if (discount.equals("1") ){
+            goodsSpec.setPrice(goodsSpec.getOnePrice());
+        }else if (discount.equals("2")){
+            goodsSpec.setPrice(goodsSpec.getTwoPrice());
+        }else {
+            goodsSpec.setPrice(goodsSpec.getThreePrice());
+        }
+    }
+
+
 
     public void deleteByGid(Integer gid) {
         LitemallGoodsSpecificationExample example = new LitemallGoodsSpecificationExample();
@@ -104,5 +142,21 @@ public class LitemallGoodsSpecificationService {
             this.valueList = valueList;
         }
     }
+
+
+    /**
+     * 首页默认的规格
+     */
+    public LitemallGoodsSpecification getSpecByGoodsSn(Integer goodsId){
+        LitemallGoodsSpecificationExample example = new LitemallGoodsSpecificationExample();
+        LitemallGoodsSpecificationExample.Criteria criteria = example.createCriteria();
+        criteria.andGoodsIdEqualTo(goodsId).andDeletedEqualTo(false).andIsDefault(1);
+        return goodsSpecificationMapper.selectOneByExample(example);
+    }
+
+    public int update(LitemallGoodsSpecification goodsSpecification){
+        return  goodsSpecificationMapper.updateByPrimaryKeySelective(goodsSpecification);
+    }
+
 
 }

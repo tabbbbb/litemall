@@ -2,6 +2,7 @@ package com.lhcode.litemall.db.service;
 
 import com.lhcode.litemall.db.constant.LiteMallConstant;
 import com.lhcode.litemall.db.dao.LitemallViplevelMapper;
+import com.lhcode.litemall.db.domain.LitemallUser;
 import com.lhcode.litemall.db.domain.LitemallViplevel;
 import com.lhcode.litemall.db.domain.LitemallViplevelExample;
 import com.github.pagehelper.Constant;
@@ -19,6 +20,10 @@ public class LitemallVipClassService {
 
     @Resource
     private LitemallViplevelMapper viplevelMapper;
+
+    @Autowired
+    private LitemallUserService userService;
+
     private Column[] columns = new Column[]{Column.id, Column.name, Column.desc, Column.picUrl, Column.floorPrice};
 
     public List<LitemallViplevel> queryVO(int offset, int limit) {
@@ -67,5 +72,11 @@ public class LitemallVipClassService {
     public List<LitemallViplevel> all() {
         LitemallViplevelExample example = new LitemallViplevelExample();
         return viplevelMapper.selectByExample(example);
+    }
+
+
+    public String getUserLevel(Integer userId){
+        LitemallUser user = userService.findById(userId);
+        return findById(Integer.valueOf(user.getUserLevel())).getDiscount();
     }
 }

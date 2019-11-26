@@ -10,6 +10,7 @@ import com.github.pagehelper.PageInfo;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.ResourceUtils;
 import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
@@ -168,5 +169,25 @@ public class LitemallUserService {
 
     public void updateUserLevel(Integer id,Integer level){
         userMapper.updateUserLevel(id,level);
+    }
+
+    public String bindMobile(String mobile,String code){
+        List<LitemallUser> user1 = this.queryByMobile(mobile);
+        List<LitemallUser> user2 = this.queryByOpenid(code);
+        if (user1.size() > 0){
+            return "此手机号已被绑定";
+        }
+        if (user2.size() != 1){
+            return "微信绑定的账号不唯一，请联系管理员";
+        }
+        LitemallUser user = user2.get(0);
+        user.setMobile(mobile);
+        userMapper.updateByPrimaryKeySelective(user);
+        return "成功";
+    }
+
+
+    public void updateMobile(LitemallUser user){
+        userMapper.updateByPrimaryKeySelective(user);
     }
 }

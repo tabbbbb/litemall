@@ -7,17 +7,17 @@ import com.lhcode.litemall.db.domain.*;
 import com.lhcode.litemall.db.service.*;
 import com.lhcode.litemall.wx.annotation.LoginUser;
 import com.github.pagehelper.PageInfo;
+import io.swagger.annotations.*;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import springfox.documentation.annotations.ApiIgnore;
 
 import javax.validation.constraints.NotNull;
+import javax.xml.ws.Response;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -30,6 +30,7 @@ import java.util.concurrent.*;
 @RestController
 @RequestMapping("/wx/goods")
 @Validated
+@Api(value = "/wx/goods",description = "商品")
 public class WxGoodsController {
 	private final Log logger = LogFactory.getLog(WxGoodsController.class);
 
@@ -37,7 +38,7 @@ public class WxGoodsController {
 	private LitemallGoodsService goodsService;
 
 	@Autowired
-	private LitemallGoodsProductService productService;
+	private LitemallRegionService regionService;
 
 	@Autowired
 	private LitemallIssueService goodsIssueService;
@@ -47,9 +48,6 @@ public class WxGoodsController {
 
 	@Autowired
 	private LitemallBrandService brandService;
-
-	@Autowired
-	private LitemallCommentService commentService;
 
 	@Autowired
 	private LitemallUserService userService;
@@ -89,150 +87,101 @@ public class WxGoodsController {
 	 * @return 商品详情
 	 */
 	@GetMapping("detail")
-	public Object detail(@LoginUser Integer userId, @NotNull Integer id) {
-		// 商品信息
-		LitemallGoods info = goodsService.findById(id);
-
-		// 商品属性
-		Callable<List> goodsAttributeListCallable = () -> goodsAttributeService.queryByGid(id);
-
-		// 商品规格 返回的是定制的GoodsSpecificationVo
-		Callable<Object> objectCallable = () -> goodsSpecificationService.getSpecificationVoList(id);
-
-		// 商品规格对应的数量和价格
-		Callable<List> productListCallable = () -> productService.queryByGid(id);
-
-		// 商品问题，这里是一些通用问题
-		Callable<List> issueCallable = () -> goodsIssueService.query();
-
-		// 商品品牌商
-		Callable<LitemallBrand> brandCallable = ()->{
-			Integer brandId = info.getBrandId();
-			LitemallBrand brand;
-			if (brandId == 0) {
-				brand = new LitemallBrand();
-			} else {
-				brand = brandService.findById(info.getBrandId());
+	@ApiOperation(value = "商品详细",response = ResponseUtil.class,notes = "",nickname = "商品详细")
+	@ApiImplicitParams(value = {
+			@ApiImplicitParam(paramType="query",name="id",value="商品id",dataTypeClass = Integer.class)
+	})
+	public Object detail(@ApiIgnore @LoginUser Integer userId, @NotNull Integer id) {
+		Map<String,Object> map = new HashMap<>();
+		LitemallGoods goods = goodsService.findById(id,userId);
+		Callable<List> specCallable = () -> goodsSpecificationService.queryByGid(userId,id);
+		Callable<LitemallRegion> regionCallable = new Callable<LitemallRegion>() {
+			@Override
+			public LitemallRegion call() throws Exception {
+				LitemallRegion region = null;
+				if (goods.getAreaId() != null && goods.getAreaId() != 0){
+					region = regionService.findById(goods.getAreaId());
+				}else if (goods.getCityId() != null && goods.getCityId() != 0){
+					region = regionService.findById(goods.getCityId());
+				}else if (goods.getProvinceId() != null && goods.getProvinceId() != 0){
+					region = regionService.findById(goods.getProvinceId());
+				}
+				return region;
 			}
-			return brand;
 		};
 
-		// 评论
-		Callable<Map> commentsCallable = () -> {
-			List<LitemallComment> comments = commentService.queryGoodsByGid(id, 0, 2);
-			List<Map<String, Object>> commentsVo = new ArrayList<>(comments.size());
-			long commentCount = PageInfo.of(comments).getTotal();
-			for (LitemallComment comment : comments) {
-				Map<String, Object> c = new HashMap<>();
-				c.put("id", comment.getId());
-				c.put("addTime", comment.getAddTime());
-				c.put("content", comment.getContent());
-				LitemallUser user = userService.findById(comment.getUserId());
-				c.put("nickname", user == null ? "" : user.getNickname());
-				c.put("avatar", user == null ? "" : user.getAvatar());
-				c.put("picList", comment.getPicUrls());
-				commentsVo.add(c);
-			}
-			Map<String, Object> commentList = new HashMap<>();
-			commentList.put("count", commentCount);
-			commentList.put("data", commentsVo);
-			return commentList;
-		};
+		FutureTask<List> specFutureTask = new FutureTask<>(specCallable);
+		FutureTask<LitemallRegion> regionFutureTask = new FutureTask<>(regionCallable);
 
-		//团购信息
-		Callable<List> grouponRulesCallable = () ->rulesService.queryByGoodsId(id);
-
-		// 用户收藏
-		int userHasCollect = 0;
-		if (userId != null) {
-			userHasCollect = collectService.count(userId, id);
-		}
-
-		// 记录用户的足迹 异步处理
-		if (userId != null) {
-			executorService.execute(()->{
-				LitemallFootprint footprint = new LitemallFootprint();
-				footprint.setUserId(userId);
-				footprint.setGoodsId(id);
-				footprintService.add(footprint);
-			});
-		}
-		FutureTask<List> goodsAttributeListTask = new FutureTask<>(goodsAttributeListCallable);
-		FutureTask<Object> objectCallableTask = new FutureTask<>(objectCallable);
-		FutureTask<List> productListCallableTask = new FutureTask<>(productListCallable);
-		FutureTask<List> issueCallableTask = new FutureTask<>(issueCallable);
-		FutureTask<Map> commentsCallableTsk = new FutureTask<>(commentsCallable);
-		FutureTask<LitemallBrand> brandCallableTask = new FutureTask<>(brandCallable);
-        FutureTask<List> grouponRulesCallableTask = new FutureTask<>(grouponRulesCallable);
-
-		executorService.submit(goodsAttributeListTask);
-		executorService.submit(objectCallableTask);
-		executorService.submit(productListCallableTask);
-		executorService.submit(issueCallableTask);
-		executorService.submit(commentsCallableTsk);
-		executorService.submit(brandCallableTask);
-		executorService.submit(grouponRulesCallableTask);
-
-		Map<String, Object> data = new HashMap<>();
+		executorService.submit(specFutureTask);
+		executorService.submit(regionFutureTask);
 
 		try {
-			data.put("info", info);
-			data.put("userHasCollect", userHasCollect);
-			data.put("issue", issueCallableTask.get());
-			data.put("comment", commentsCallableTsk.get());
-			data.put("specificationList", objectCallableTask.get());
-			data.put("productList", productListCallableTask.get());
-			data.put("attribute", goodsAttributeListTask.get());
-			data.put("brand", brandCallableTask.get());
-			data.put("groupon", grouponRulesCallableTask.get());
-		}
-		catch (Exception e) {
+			if(userId != null){
+				Callable<Boolean> collectCallable = new Callable<Boolean>() {
+					@Override
+					public Boolean call() throws Exception {
+						if (collectService.queryByTypeAndValue(userId,goods.getId()) == null){
+							return false;
+						}
+						return true;
+					}
+				};
+
+				Callable addFootprintCallable = new Callable() {
+					@Override
+					public Object call() throws Exception {
+						LitemallFootprint footprint = new LitemallFootprint();
+						footprint.setGoodsId(goods.getId());
+						footprint.setUserId(userId);
+						footprintService.add(footprint);
+						return null;
+					}
+				};
+				FutureTask<Boolean> collectFutureTask = new FutureTask<>(collectCallable);
+				FutureTask addFootprintFutureTask = new FutureTask(addFootprintCallable);
+				executorService.submit(collectFutureTask);
+				executorService.submit(addFootprintFutureTask);
+				map.put("isCollect",collectFutureTask.get(3,TimeUnit.SECONDS));
+			}
+			map.put("goods",goods);
+			map.put("spec",specFutureTask.get(3,TimeUnit.SECONDS));
+			map.put("region",regionFutureTask.get(3,TimeUnit.SECONDS));
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		} catch (ExecutionException e) {
+			e.printStackTrace();
+		} catch (TimeoutException e) {
 			e.printStackTrace();
 		}
-
-		//商品分享图片地址
-		data.put("shareImage", info.getShareUrl());
-		return ResponseUtil.ok(data);
+		return ResponseUtil.ok(map);
 	}
 
-	/**
-	 * 商品分类类目
-	 *
-	 * @param id 分类类目ID
-	 * @return 商品分类类目
-	 */
-	@GetMapping("category")
-	public Object category(@NotNull Integer id) {
-		LitemallCategory cur = categoryService.findById(id);
-		LitemallCategory parent = null;
-		List<LitemallCategory> children = null;
-
-		if (cur.getPid() == 0) {
-			parent = cur;
-			children = categoryService.queryByPid(cur.getId());
-			cur = children.size() > 0 ? children.get(0) : cur;
-		} else {
-			parent = categoryService.findById(cur.getPid());
-			children = categoryService.queryByPid(cur.getPid());
+	/*public Object detail(@ApiIgnore @LoginUser Integer userId, @NotNull Integer id) {
+		Map<String,Object> map = new HashMap<>();
+		LitemallGoods goods = goodsService.findById(id,userId);
+		List<LitemallGoodsSpecification> spec = goodsSpecificationService.queryByGid(userId,id);
+		LitemallRegion region = null;
+		if (goods.getAreaId() != null && goods.getAreaId() != 0){
+			region = regionService.findById(goods.getAreaId());
+		}else if (goods.getCityId() != null && goods.getCityId() != 0){
+			region = regionService.findById(goods.getCityId());
+		}else if (goods.getProvinceId() != null && goods.getProvinceId() != 0){
+			region = regionService.findById(goods.getProvinceId());
 		}
-		Map<String, Object> data = new HashMap<>();
-		data.put("currentCategory", cur);
-		data.put("parentCategory", parent);
-		data.put("brotherCategory", children);
-		return ResponseUtil.ok(data);
-	}
+		map.put("goods",goods);
+		map.put("spec",spec);
+		map.put("region",region);
+		return ResponseUtil.ok(map);
+	}*/
 
 	/**
 	 * 根据条件搜素商品
 	 * <p>
-	 * 1. 这里的前五个参数都是可选的，甚至都是空
 	 * 2. 用户是可选登录，如果登录，则记录用户的搜索关键字
 	 *
 	 * @param categoryId 分类类目ID，可选
-	 * @param brandId    品牌商ID，可选
 	 * @param keyword    关键字，可选
-	 * @param isNews      是否新品，可选
-	 * @param isHots      是否热买，可选
 	 * @param userId     用户ID
 	 * @param page       分页页数
 	 * @param size       分页大小
@@ -241,21 +190,30 @@ public class WxGoodsController {
 	 * @return 根据条件搜素的商品详情
 	 */
 	@GetMapping("list")
+	@ApiOperation(value = "根据条件搜索商品",response = LitemallGoods.class,notes = "data:{goodsList:LitemallGoodsList,count:商品数量}",nickname = "根据条件搜素商品")
+	@ApiImplicitParams(value = {
+			@ApiImplicitParam(paramType = "query",name = "type",value = "规格选择",dataTypeClass = String.class),
+			@ApiImplicitParam(paramType="query",name="address",value="地址 省级id,市级id,省区id(没有选择可以不拼)",dataTypeClass = String.class),
+			@ApiImplicitParam(paramType="query",name="categoryId",value="类别id",dataTypeClass = Integer.class),
+			@ApiImplicitParam(paramType="query",name="keyword",value="搜索关键字",dataTypeClass = String.class),
+			@ApiImplicitParam(paramType="query",name="typeId",value="1:热卖,2:特价,3:新品",dataTypeClass = String.class),
+			@ApiImplicitParam(paramType="query",name="page",value="页码",dataTypeClass = Integer.class,defaultValue = "1"),
+			@ApiImplicitParam(paramType="query",name="size",value="本页条数",dataTypeClass = Integer.class,defaultValue = "10"),
+			@ApiImplicitParam(paramType="query",name="sort",value="排序字段",dataTypeClass = String.class,defaultValue = "add_time"),
+			@ApiImplicitParam(paramType="query",name="order",value="排序顺序",dataTypeClass = String.class,defaultValue = "desc")
+	})
 	public Object list(
-		Integer categoryId,
-		Integer brandId,
-		String keyword,
-		String isNews,
-		String isHots,
-		@LoginUser Integer userId,
-		@RequestParam(defaultValue = "1") Integer page,
-		@RequestParam(defaultValue = "10") Integer size,
-		@Sort(accepts = {"add_time", "retail_price", "name"}) @RequestParam(defaultValue = "add_time") String sort,
-		@Order @RequestParam(defaultValue = "desc") String order) {
+		 String type,
+		 String address,
+		 Integer categoryId,
+		 String keyword,
+		 Integer typeId,
+		 @ApiIgnore @LoginUser Integer userId,
+		 @RequestParam(defaultValue = "1")Integer page,
+		 @RequestParam(defaultValue = "10")Integer size,
+		 @RequestParam(defaultValue = "add_time") String sort,
+		 @Order @RequestParam(defaultValue = "desc") String order) {
 
-
-		Boolean isNew = Boolean.getBoolean(isNews);
-		Boolean isHot = Boolean.getBoolean(isHots);
 
 		//添加到搜索历史
 		if (userId != null && !StringUtils.isEmpty(keyword)) {
@@ -265,62 +223,38 @@ public class WxGoodsController {
 			searchHistoryVo.setFrom("wx");
 			searchHistoryService.save(searchHistoryVo);
 		}
-
+		List<LitemallRegion> regionList = regionService.getAll();
 		//查询列表数据
-		List<LitemallGoods> goodsList = goodsService.querySelective(categoryId, brandId, keyword, isHot, isNew, page, size, sort, order);
+		List<LitemallGoods> goodsList = goodsService.querySelective(type,address,categoryId,userId, keyword, typeId, page, size, sort, order);
+		List response = new ArrayList();
+		for (LitemallGoods goods : goodsList) {
+			Map<String,Object> map = new HashMap<>();
+			map.put("attr",goodsAttributeService.queryByGid(goods.getId()));
+			map.put("goods",goods);
+			map.put("region",filterRegion(regionList,goods));
+			response.add(map);
+		}
 
 		// 查询商品所属类目列表。
-		List<Integer> goodsCatIds = goodsService.getCatIds(brandId, keyword, isHot, isNew);
-		List<LitemallCategory> categoryList = null;
-		if (goodsCatIds.size() != 0) {
-			categoryList = categoryService.queryL2ByIds(goodsCatIds);
-		} else {
-			categoryList = new ArrayList<>(0);
-		}
-
 		Map<String, Object> data = new HashMap<>();
-		data.put("goodsList", goodsList);
+		data.put("goodsList", response);
 		data.put("count", PageInfo.of(goodsList).getTotal());
-		data.put("filterCategoryList", categoryList);
-
 		return ResponseUtil.ok(data);
 	}
 
-	/**
-	 * 商品详情页面“大家都在看”推荐商品
-	 *
-	 * @param id, 商品ID
-	 * @return 商品详情页面推荐商品
-	 */
-	@GetMapping("related")
-	public Object related(@NotNull Integer id) {
-		LitemallGoods goods = goodsService.findById(id);
-		if (goods == null) {
-			return ResponseUtil.badArgumentValue();
+	private LitemallRegion filterRegion(List<LitemallRegion> regionList,LitemallGoods goods){
+		LitemallRegion region1 = null;
+		if (goods.getAreaId() != null && goods.getAreaId() != 0){
+			region1 = regionList.stream().filter(region -> region.getId().equals(goods.getAreaId())).findAny().orElse(null);
+		}else if (goods.getCityId() != null && goods.getCityId() != 0){
+			region1 = regionList.stream().filter(region -> region.getId().equals(goods.getCityId())).findAny().orElse(null);
+		}else if (goods.getProvinceId() != null && goods.getProvinceId() != 0){
+			region1 = regionList.stream().filter(region -> region.getId().equals(goods.getProvinceId())).findAny().orElse(null);
 		}
-
-		// 目前的商品推荐算法仅仅是推荐同类目的其他商品
-		int cid = goods.getCategoryId();
-
-		// 查找六个相关商品
-		int related = 6;
-		List<LitemallGoods> goodsList = goodsService.queryByCategory(cid, 0, related);
-		Map<String, Object> data = new HashMap<>();
-		data.put("goodsList", goodsList);
-		return ResponseUtil.ok(data);
+		return region1;
 	}
 
-	/**
-	 * 在售的商品总数
-	 *
-	 * @return 在售的商品总数
-	 */
-	@GetMapping("count")
-	public Object count() {
-		Integer goodsCount = goodsService.queryOnSale();
-		Map<String, Object> data = new HashMap<>();
-		data.put("goodsCount", goodsCount);
-		return ResponseUtil.ok(data);
-	}
+
+
 
 }

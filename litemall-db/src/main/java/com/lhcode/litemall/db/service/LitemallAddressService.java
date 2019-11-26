@@ -19,6 +19,7 @@ public class LitemallAddressService {
     public List<LitemallAddress> queryByUid(Integer uid) {
         LitemallAddressExample example = new LitemallAddressExample();
         example.or().andUserIdEqualTo(uid).andDeletedEqualTo(false);
+        example.setOrderByClause("is_default desc ,add_time desc");
         return addressMapper.selectByExample(example);
     }
 

@@ -58,6 +58,15 @@ public class LitemallDirectService {
     }
 
 
+    public List<LitemallDirect> getList(){
+        LitemallDirectExample example = new LitemallDirectExample();
+        LitemallDirectExample.Criteria criteria = example.createCriteria();
+        criteria.andIsStartEqualTo(1);
+        criteria.andDeletedEqualTo(0);
+        return directMapper.selectByExample(example);
+    }
+
+
     public int createDirect(LitemallDirect direct){
         direct.setAddTime(new Date());
         direct.setIsStart(1);

@@ -17,6 +17,7 @@ import com.lhcode.litemall.db.service.LitemallGrouponService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import springfox.documentation.annotations.ApiIgnore;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -28,6 +29,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/admin/groupon")
 @Validated
+@ApiIgnore
 public class AdminGrouponController {
     private final Log logger = LogFactory.getLog(AdminGrouponController.class);
 

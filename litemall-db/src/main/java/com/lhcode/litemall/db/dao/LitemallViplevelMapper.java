@@ -136,4 +136,8 @@ public interface LitemallViplevelMapper {
      * @return
      */
     int selectCount();
+
+
+
+    int getLowLevelId();
 }

@@ -5,7 +5,6 @@ import org.apache.commons.logging.LogFactory;
 import com.lhcode.litemall.core.system.SystemConfig;
 import com.lhcode.litemall.db.domain.LitemallOrder;
 import com.lhcode.litemall.db.domain.LitemallOrderGoods;
-import com.lhcode.litemall.db.service.LitemallGoodsProductService;
 import com.lhcode.litemall.db.service.LitemallOrderGoodsService;
 import com.lhcode.litemall.db.service.LitemallOrderService;
 import com.lhcode.litemall.db.util.OrderUtil;
@@ -28,8 +27,6 @@ public class OrderJob {
     private LitemallOrderGoodsService orderGoodsService;
     @Autowired
     private LitemallOrderService orderService;
-    @Autowired
-    private LitemallGoodsProductService productService;
 
     /**
      * 自动取消订单
@@ -40,7 +37,7 @@ public class OrderJob {
      * TODO
      * 注意，因为是相隔半小时检查，因此导致订单真正超时时间是 [LITEMALL_ORDER_UNPAID, 30 + LITEMALL_ORDER_UNPAID]
      */
-    @Scheduled(fixedDelay = 30 * 60 * 1000)
+    //@Scheduled(fixedDelay = 30 * 60 * 1000)
     @Transactional
     public void checkOrderUnpaid() {
         logger.info("系统开启任务检查订单是否已经超期自动取消订单");
@@ -54,16 +51,6 @@ public class OrderJob {
                 throw new RuntimeException("更新数据已失效");
             }
 
-            // 商品货品数量增加
-            Integer orderId = order.getId();
-            List<LitemallOrderGoods> orderGoodsList = orderGoodsService.queryByOid(orderId);
-            for (LitemallOrderGoods orderGoods : orderGoodsList) {
-                Integer productId = orderGoods.getProductId();
-                Short number = orderGoods.getNumber();
-                if (productService.addStock(productId, number) == 0) {
-                    throw new RuntimeException("商品货品库存增加失败");
-                }
-            }
             logger.info("订单 ID=" + order.getId() + " 已经超期自动取消订单");
         }
     }
@@ -77,7 +64,7 @@ public class OrderJob {
      * TODO
      * 注意，因为是相隔一天检查，因此导致订单真正超时时间是 [LITEMALL_ORDER_UNCONFIRM, 1 + LITEMALL_ORDER_UNCONFIRM]
      */
-    @Scheduled(cron = "0 0 3 * * ?")
+    //@Scheduled(cron = "0 0 3 * * ?")
     public void checkOrderUnconfirm() {
         logger.info("系统开启任务检查订单是否已经超期自动确认收货");
 
@@ -104,7 +91,7 @@ public class OrderJob {
      * TODO
      * 注意，因为是相隔一天检查，因此导致订单真正超时时间是 [LITEMALL_ORDER_COMMENT, 1 + LITEMALL_ORDER_COMMENT]
      */
-    @Scheduled(cron = "0 0 4 * * ?")
+    //@Scheduled(cron = "0 0 4 * * ?")
     public void checkOrderComment() {
         logger.info("系统开启任务检查订单是否已经超期未评价");
 

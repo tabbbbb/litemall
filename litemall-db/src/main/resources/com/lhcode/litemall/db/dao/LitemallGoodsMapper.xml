@@ -29,6 +29,11 @@
     <result column="one_price" jdbcType="DECIMAL" property="onePrice" />
     <result column="two_price" jdbcType="DECIMAL" property="twoPrice" />
     <result column="three_price" jdbcType="DECIMAL" property="threePrice" />
+    <result column="is_sale" jdbcType="BIT" property="isSale"/>
+    <result column="province_id" jdbcType="INTEGER" property="provinceId"/>
+    <result column="city_id" jdbcType="INTEGER" property="cityId"/>
+    <result column="area_id" jdbcType="INTEGER" property="areaId"/>
+    <result column="sales" jdbcType="INTEGER" property="sales"/>
   </resultMap>
   <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="com.lhcode.litemall.db.domain.LitemallGoods">
     <!--
@@ -148,7 +153,8 @@
     -->
     id, goods_sn, `name`, category_id, brand_id, gallery, keywords, brief, is_on_sale, 
     sort_order, pic_url, share_url, is_new, is_hot, unit, counter_price, retail_price, 
-    add_time, update_time, deleted,one_price,two_price,three_price
+    add_time, update_time, deleted,one_price,two_price,three_price,is_sale,province_id,
+    city_id,area_id,sales
   </sql>
   <sql id="Blob_Column_List">
     <!--
@@ -405,6 +411,19 @@
       <if test="threePrice != null">
         three_price,
       </if>
+      <if test="isSale != null">
+        is_sale,
+      </if>
+      <if test="provinceId != null">
+        province_id,
+      </if>
+      <if test="cityId != null">
+        city_id,
+      </if>
+      <if test="areaId != null">
+        area_id,
+      </if>
+
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="goodsSn != null">
@@ -474,7 +493,19 @@
         #{twoPrice,jdbcType=DECIMAL},
       </if>
       <if test="threePrice != null">
-        #{twoPrice,jdbcType=DECIMAL},
+        #{threePrice,jdbcType=DECIMAL},
+      </if>
+      <if test="isSale != null">
+        #{isSale,jdbcType=INTEGER},
+      </if>
+      <if test="provinceId != null">
+        #{provinceId,jdbcType=INTEGER},
+      </if>
+      <if test="cityId != null">
+        #{cityId,jdbcType=INTEGER},
+      </if>
+      <if test="areaId != null">
+        #{areaId,jdbcType=INTEGER},
       </if>
     </trim>
   </insert>
@@ -690,6 +721,27 @@
       </if>
       <if test="detail != null">
         detail = #{detail,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="onePrice != null">
+        one_price = #{onePrice,jdbcType=DECIMAL},
+      </if>
+      <if test="twoPrice != null">
+        two_price = #{twoPrice,jdbcType=DECIMAL},
+      </if>
+      <if test="threePrice != null">
+        three_price =  #{threePrice,jdbcType=DECIMAL},
+      </if>
+      <if test="isSale != null">
+        is_sale =  #{isSale,jdbcType=INTEGER},
+      </if>
+      <if test="provinceId != null">
+        province_id =  #{provinceId,jdbcType=INTEGER},
+      </if>
+      <if test="cityId != null">
+         city_id =  #{cityId,jdbcType=INTEGER},
+      </if>
+      <if test="areaId != null">
+        area_id =  #{areaId,jdbcType=INTEGER},
       </if>
     </set>
     where id = #{id,jdbcType=INTEGER}

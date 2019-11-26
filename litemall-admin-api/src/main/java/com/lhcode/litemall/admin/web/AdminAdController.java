@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import springfox.documentation.annotations.ApiIgnore;
 
 import javax.validation.constraints.NotNull;
 import java.util.HashMap;
@@ -23,6 +24,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/admin/ad")
 @Validated
+@ApiIgnore
 public class AdminAdController {
     private final Log logger = LogFactory.getLog(AdminAdController.class);
 
@@ -55,7 +57,7 @@ public class AdminAdController {
         if (StringUtils.isEmpty(name) && ad.getPosition() != 1) {
             return ResponseUtil.badArgument();
         }
-        if (StringUtils.isEmpty(ad.getUrl())){
+        if (StringUtils.isEmpty(ad.getUrl()) && ad.getPosition() == 1){
             return ResponseUtil.badArgument();
         }
         return null;

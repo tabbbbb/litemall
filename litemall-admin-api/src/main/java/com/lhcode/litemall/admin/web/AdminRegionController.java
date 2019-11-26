@@ -11,6 +11,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import springfox.documentation.annotations.ApiIgnore;
 
 import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
@@ -19,6 +20,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/admin/region")
 @Validated
+@ApiIgnore
 public class AdminRegionController {
     private final Log logger = LogFactory.getLog(AdminRegionController.class);
 

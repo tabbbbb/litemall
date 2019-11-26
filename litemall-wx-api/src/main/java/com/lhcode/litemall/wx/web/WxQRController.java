@@ -24,6 +24,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.client.RestTemplate;
 
 import com.alibaba.fastjson.JSONObject;
+import springfox.documentation.annotations.ApiIgnore;
 
 @Controller
 @RequestMapping("/wx/qrcode")
@@ -35,7 +36,7 @@ public class WxQRController {
     private WxProperties properties;
 
     @RequestMapping("/createQRCode")
-    public void createQRCode(HttpServletResponse response) {
+    public void createQRCode(@ApiIgnore HttpServletResponse response) {
         OutputStream out = null;
         try {
             byte[] b = createQRCode(token());

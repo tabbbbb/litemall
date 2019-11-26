@@ -53,4 +53,8 @@ public class LitemallOrderGoodsService {
         example.or().andGoodsIdEqualTo(goodsId).andDeletedEqualTo(false);
         return orderGoodsMapper.countByExample(example) != 0;
     }
+
+    public int add(List<LitemallOrderGoods> list){
+        return orderGoodsMapper.addListOrderGoods(list);
+    }
 }

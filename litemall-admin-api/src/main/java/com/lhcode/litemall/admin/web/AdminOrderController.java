@@ -17,6 +17,7 @@ import org.apache.shiro.subject.Subject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import springfox.documentation.annotations.ApiIgnore;
 
 import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
@@ -25,6 +26,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/admin/order")
 @Validated
+@ApiIgnore
 public class AdminOrderController {
     private final Log logger = LogFactory.getLog(AdminOrderController.class);
 
@@ -36,7 +38,6 @@ public class AdminOrderController {
     /**
      * 查询订单
      *
-     * @param userId
      * @param orderSn
      * @param orderStatusArray
      * @param page
@@ -113,17 +114,24 @@ public class AdminOrderController {
     }
 
 
-    /**
-     * 回复订单商品
-     *
-     * @param body 订单信息，{ orderId：xxx }
-     * @return 订单操作结果
-     */
-    @RequiresPermissions("admin:order:reply")
-    @RequiresPermissionsDesc(menu = {"商场管理", "订单管理"}, button = "订单商品回复")
-    @PostMapping("/reply")
-    public Object reply(@RequestBody String body) {
-        return adminOrderService.reply(body);
+//    /**
+//     * 回复订单商品
+//     *
+//     * @param body 订单信息，{ orderId：xxx }
+//     * @return 订单操作结果
+//     */
+//    @RequiresPermissions("admin:order:reply")
+//    @RequiresPermissionsDesc(menu = {"商场管理", "订单管理"}, button = "订单商品回复")
+//    @PostMapping("/reply")
+//    public Object reply(@RequestBody String body) {
+//        return adminOrderService.reply(body);
+//    }
+
+    @RequiresPermissions("admin:order:notarize")
+    @RequiresPermissionsDesc(menu = {"商场管理", "订单管理"}, button = "订单商品收货")
+    @PostMapping("/notarize")
+    public Object notarize(@RequestBody String body){
+        return adminOrderService.notarize(body);
     }
 
 }
