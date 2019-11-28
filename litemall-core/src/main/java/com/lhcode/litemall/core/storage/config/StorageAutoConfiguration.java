@@ -2,8 +2,11 @@ package com.lhcode.litemall.core.storage.config;
 
 import com.lhcode.litemall.core.storage.*;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.boot.web.servlet.MultipartConfigFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+
+import javax.servlet.MultipartConfigElement;
 
 @Configuration
 @EnableConfigurationProperties(StorageProperties.class)
@@ -76,4 +79,18 @@ public class StorageAutoConfiguration {
         qiniuStorage.setEndpoint(qiniu.getEndpoint());
         return qiniuStorage;
     }
+
+    /**
+     * 配置文件上传大小
+     */
+    @Bean
+    public MultipartConfigElement multipartConfigElement(){
+        MultipartConfigFactory factory = new MultipartConfigFactory();
+        //  单个数据大小 10M
+        factory.setMaxFileSize("10240KB");
+        /// 总上传数据大小 10M
+        factory.setMaxRequestSize("10240KB");
+        return factory.createMultipartConfig();
+    }
+
 }

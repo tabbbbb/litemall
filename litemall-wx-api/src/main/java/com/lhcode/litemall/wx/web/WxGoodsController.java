@@ -95,6 +95,7 @@ public class WxGoodsController {
 		Map<String,Object> map = new HashMap<>();
 		LitemallGoods goods = goodsService.findById(id,userId);
 		Callable<List> specCallable = () -> goodsSpecificationService.queryByGid(userId,id);
+		Callable<List> attrCallable = () -> goodsAttributeService.queryByGid(id);
 		Callable<LitemallRegion> regionCallable = new Callable<LitemallRegion>() {
 			@Override
 			public LitemallRegion call() throws Exception {
@@ -112,10 +113,10 @@ public class WxGoodsController {
 
 		FutureTask<List> specFutureTask = new FutureTask<>(specCallable);
 		FutureTask<LitemallRegion> regionFutureTask = new FutureTask<>(regionCallable);
-
+		FutureTask<List> attrFutureTask = new FutureTask<>(attrCallable);
 		executorService.submit(specFutureTask);
 		executorService.submit(regionFutureTask);
-
+		executorService.submit(attrFutureTask);
 		try {
 			if(userId != null){
 				Callable<Boolean> collectCallable = new Callable<Boolean>() {
@@ -145,6 +146,7 @@ public class WxGoodsController {
 				map.put("isCollect",collectFutureTask.get(3,TimeUnit.SECONDS));
 			}
 			map.put("goods",goods);
+			map.put("attr",attrFutureTask.get(3,TimeUnit.SECONDS));
 			map.put("spec",specFutureTask.get(3,TimeUnit.SECONDS));
 			map.put("region",regionFutureTask.get(3,TimeUnit.SECONDS));
 		} catch (InterruptedException e) {
