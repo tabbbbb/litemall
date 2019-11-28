@@ -19,6 +19,7 @@ public class SystemConfig {
     // 运费相关配置
     public final static String LITEMALL_EXPRESS_FREIGHT_VALUE = "litemall_express_freight_value";
     public final static String LITEMALL_EXPRESS_FREIGHT_MIN = "litemall_express_freight_min";
+
     // 订单相关配置
     public final static String LITEMALL_ORDER_UNPAID = "litemall_order_unpaid";
     public final static String LITEMALL_ORDER_UNCONFIRM = "litemall_order_unconfirm";
@@ -28,6 +29,10 @@ public class SystemConfig {
     public final static String LITEMALL_MALL_ADDRESS = "litemall_mall_address";
     public final static String LITEMALL_MALL_PHONE = "litemall_mall_phone";
     public final static String LITEMALL_MALL_QQ = "litemall_mall_qq";
+
+    //定金
+    public final static String LITEMALL_DOWN_PAYMENT = "litemall_down_payment";
+
 
     //所有的配置均保存在该 HashMap 中
     private static Map<String, String> SYSTEM_CONFIGS = new HashMap<>();
@@ -78,6 +83,10 @@ public class SystemConfig {
 
     public static BigDecimal getFreight() {
         return getConfigBigDec(LITEMALL_EXPRESS_FREIGHT_VALUE);
+    }
+
+    public static  BigDecimal getDownPayment(){
+        return getConfigBigDec(LITEMALL_DOWN_PAYMENT);
     }
 
     public static BigDecimal getFreightLimit() {

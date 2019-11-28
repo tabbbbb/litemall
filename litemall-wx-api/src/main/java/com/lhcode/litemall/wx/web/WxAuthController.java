@@ -16,6 +16,7 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.models.auth.In;
 import jodd.util.StringUtil;
+import me.chanjar.weixin.common.error.WxErrorException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import com.lhcode.litemall.core.notify.NotifyService;
@@ -233,8 +234,15 @@ public class WxAuthController {
         if (StringUtil.isEmpty(mobile) || StringUtil.isEmpty(code) || StringUtil.isEmpty(authCode)){
             return ResponseUtil.badArgument();
         }
-        if (CaptchaCodeManager.getCachedCaptcha(mobile).equals(authCode)){
-            String errmsg = userService.bindMobile(mobile,code);
+        WxMaJscode2SessionResult result = null;
+        try {
+            result = this.wxService.getUserService().getSessionInfo(code);
+        } catch (WxErrorException e) {
+            e.printStackTrace();
+        }
+        String openId = result.getOpenid();
+        if (CaptchaCodeManager.getCachedCaptcha(mobile) != null &&CaptchaCodeManager.getCachedCaptcha(mobile).equals(authCode)){
+            String errmsg = userService.bindMobile(mobile,openId);
             if (errmsg.equals("成功")){
                 return ResponseUtil.ok();
             }else{
@@ -255,7 +263,7 @@ public class WxAuthController {
             return ResponseUtil.badArgument();
         }
         if (userId == null)return ResponseUtil.unlogin();
-        if (CaptchaCodeManager.getCachedCaptcha(mobile).equals(authCode)){
+        if (CaptchaCodeManager.getCachedCaptcha(mobile) != null && CaptchaCodeManager.getCachedCaptcha(mobile).equals(authCode)){
             CaptchaCodeManager.addUpdateMobil(mobile);
             return ResponseUtil.ok();
         }else{

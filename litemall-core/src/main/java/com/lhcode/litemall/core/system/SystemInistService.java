@@ -43,6 +43,7 @@ class SystemInistService {
         // 运费相关配置默认值
         DEFAULT_CONFIGS.put(SystemConfig.LITEMALL_EXPRESS_FREIGHT_VALUE, "8");
         DEFAULT_CONFIGS.put(SystemConfig.LITEMALL_EXPRESS_FREIGHT_MIN, "88");
+
         // 订单相关配置默认值
         DEFAULT_CONFIGS.put(SystemConfig.LITEMALL_ORDER_UNPAID, "30");
         DEFAULT_CONFIGS.put(SystemConfig.LITEMALL_ORDER_UNCONFIRM, "7");
@@ -52,6 +53,9 @@ class SystemInistService {
         DEFAULT_CONFIGS.put(SystemConfig.LITEMALL_MALL_ADDRESS, "上海");
         DEFAULT_CONFIGS.put(SystemConfig.LITEMALL_MALL_PHONE, "021-xxxx-xxxx");
         DEFAULT_CONFIGS.put(SystemConfig.LITEMALL_MALL_QQ, "738696120");
+
+
+        DEFAULT_CONFIGS.put(SystemConfig.LITEMALL_DOWN_PAYMENT, "50");
     }
 
     @Autowired

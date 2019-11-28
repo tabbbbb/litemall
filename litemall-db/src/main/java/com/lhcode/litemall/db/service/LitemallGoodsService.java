@@ -33,6 +33,8 @@ public class LitemallGoodsService {
 
     @Resource
     private LitemallGoodsSpecificationService goodsSpecificationService;
+    @Resource
+    private LitemallCategoryService categoryService;
 
     /**
      * 获取热卖商品
@@ -138,9 +140,7 @@ public class LitemallGoodsService {
 
         for (int i = 0; i < addressId.length; i++) {
             LitemallGoodsExample.Criteria criteria = example.or();
-            if (!StringUtils.isEmpty(catId) && catId != 0) {
-                criteria.andCategoryIdEqualTo(catId);
-            }
+
 
             if (typeId != null) {
                 if (typeId == 1) {
@@ -190,6 +190,21 @@ public class LitemallGoodsService {
             if (type != null && !flagType(type,goodsList.get(i).getId())){
                 goodsList.remove(i);
                 i--;
+            }
+
+
+        }
+        for (int i = 0; i < goodsList.size(); i++) {
+            if (!StringUtils.isEmpty(catId) && catId != 0) {
+                Integer categoryId = goodsList.get(i).getCategoryId();
+                if (!catId.equals(categoryId)){
+                    Integer pid = categoryService.findById(categoryId).getPid();
+                    if(!pid.equals(catId)){
+                        goodsList.remove(i);
+                        i--;
+                    }
+
+                }
             }
         }
         return goodsList;

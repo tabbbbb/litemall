@@ -53,7 +53,7 @@ public class WxRegionController {
         Map<String,Object> map = new HashMap<>();
         map.put(HomeCacheManager.REGION,regionList);
         HomeCacheManager.loadData(HomeCacheManager.REGION,map);
-        return ResponseUtil.ok(regionList);
+        return ResponseUtil.ok(map);
     }
 
 

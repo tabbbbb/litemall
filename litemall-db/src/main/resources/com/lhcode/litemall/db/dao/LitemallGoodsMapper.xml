@@ -743,6 +743,9 @@
       <if test="areaId != null">
         area_id =  #{areaId,jdbcType=INTEGER},
       </if>
+      <if test="sales != null">
+        sales =  #{sales,jdbcType=INTEGER},
+      </if>
     </set>
     where id = #{id,jdbcType=INTEGER}
   </update>

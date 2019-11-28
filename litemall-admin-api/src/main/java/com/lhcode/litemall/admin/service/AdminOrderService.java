@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -46,6 +47,10 @@ public class AdminOrderService {
     @Autowired
     private NotifyService notifyService;
     @Autowired
+    private LitemallGoodsService goodsService;
+    @Autowired
+    private LitemallGoodsSpecificationService goodsSpecificationService;
+    @Autowired
     private LogHelper logHelper;
 
     public Object list(Integer adminId,String nickname, String orderSn, List<Short> orderStatusArray,
@@ -61,11 +66,23 @@ public class AdminOrderService {
 
     public Object detail(Integer id) {
         LitemallOrder order = orderService.findById(id);
-        List<LitemallOrderGoods> orderGoods = orderGoodsService.queryByOid(id);
+        List<LitemallOrderGoods> orderGoodsList = orderGoodsService.queryByOid(id);
+        List list = new ArrayList();
         UserVo user = userService.findUserVoById(order.getUserId());
+        for (LitemallOrderGoods orderGoods : orderGoodsList) {
+            LitemallGoods goods = goodsService.findById(orderGoods.getGoodsId(),user.getId());
+            LitemallGoodsSpecification goodsSpecification = goodsSpecificationService.findById(user.getId(), Integer.valueOf(orderGoods.getSpecifications()));
+            Map map = new HashMap();
+            map.put("goodsName",goods.getName());
+            map.put("specName",goodsSpecification.getSpecification());
+            map.put("number",orderGoods.getNumber());
+            map.put("pic",goods.getPicUrl());
+            map.put("price",goodsSpecification.getPrice());
+            list.add(map);
+        }
         Map<String, Object> data = new HashMap<>();
         data.put("order", order);
-        data.put("orderGoods", orderGoods);
+        data.put("orderGoods", list);
         data.put("user", user);
 
         return ResponseUtil.ok(data);
@@ -125,26 +142,26 @@ public class AdminOrderService {
             return ResponseUtil.fail(ORDER_CONFIRM_NOT_ALLOWED, "订单不能退款");
         }
 
-        // 微信退款
-        WxPayRefundRequest wxPayRefundRequest = new WxPayRefundRequest();
-        wxPayRefundRequest.setOutTradeNo(order.getOrderSn());
-        wxPayRefundRequest.setOutRefundNo("refund_" + order.getOrderSn());
-        // 元转成分
-        Integer totalFee = order.getActualPrice().multiply(new BigDecimal(100)).intValue();
-        wxPayRefundRequest.setTotalFee(totalFee);
-        wxPayRefundRequest.setRefundFee(totalFee);
-
-        WxPayRefundResult wxPayRefundResult = null;
-        try {
-            wxPayRefundResult = wxPayService.refund(wxPayRefundRequest);
-        } catch (WxPayException e) {
-            e.printStackTrace();
-            return ResponseUtil.fail(ORDER_REFUND_FAILED, "订单退款失败");
-        }
-        if (!wxPayRefundResult.getReturnCode().equals("SUCCESS")) {
-            logger.warn("refund fail: " + wxPayRefundResult.getReturnMsg());
-            return ResponseUtil.fail(ORDER_REFUND_FAILED, "订单退款失败");
-        }
+//        // 微信退款
+//        WxPayRefundRequest wxPayRefundRequest = new WxPayRefundRequest();
+//        wxPayRefundRequest.setOutTradeNo(order.getOrderSn());
+//        wxPayRefundRequest.setOutRefundNo("refund_" + order.getOrderSn());
+//        // 元转成分
+//        Integer totalFee = order.getActualPrice().multiply(new BigDecimal(100)).intValue();
+//        wxPayRefundRequest.setTotalFee(totalFee);
+//        wxPayRefundRequest.setRefundFee(totalFee);
+//
+//        WxPayRefundResult wxPayRefundResult = null;
+//        try {
+//            wxPayRefundResult = wxPayService.refund(wxPayRefundRequest);
+//        } catch (WxPayException e) {
+//            e.printStackTrace();
+//            return ResponseUtil.fail(ORDER_REFUND_FAILED, "订单退款失败");
+//        }
+//        if (!wxPayRefundResult.getReturnCode().equals("SUCCESS")) {
+//            logger.warn("refund fail: " + wxPayRefundResult.getReturnMsg());
+//            return ResponseUtil.fail(ORDER_REFUND_FAILED, "订单退款失败");
+//        }
 
         // 设置订单取消状态
         order.setOrderStatus(OrderUtil.STATUS_REFUND_CONFIRM);
@@ -199,9 +216,9 @@ public class AdminOrderService {
         //TODO 发送邮件和短信通知，这里采用异步发送
         // 发货会发送通知短信给用户:          *
         // "您的订单已经发货，快递公司 {1}，快递单 {2} ，请注意查收"
-        notifyService.notifySmsTemplate(order.getMobile(), NotifyType.SHIP, new String[]{"自配送", "无"});
-
-        logHelper.logOrderSucceed("发货", "订单编号 " + orderId);
+//        notifyService.notifySmsTemplate(order.getMobile(), NotifyType.SHIP, new String[]{"自配送", "无"});
+//
+//        logHelper.logOrderSucceed("发货", "订单编号 " + orderId);
         return ResponseUtil.ok();
     }
 
@@ -236,14 +253,17 @@ public class AdminOrderService {
     }
 
 
-    public Object notarize( String body){
+    public Object notarize(String body){
         Integer orderId = JacksonUtil.parseInteger(body,"orderId");
+        Integer notarizePrice = JacksonUtil.parseInteger(body,"notarizeMoney");
         LitemallOrder order = orderService.findById(orderId);
         if (order.getOrderStatus() != 301){
             return ResponseUtil.fail();
         }
         order.setOrderStatus((short) 401);
-        order.setActualPrice(order.getOrderPrice());
+        order.setActualPrice(new BigDecimal(notarizePrice));
+        order.setConfirmTime(LocalDateTime.now());
+        orderService.updateOrder(order);
         return ResponseUtil.ok();
     }
 

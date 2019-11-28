@@ -46,13 +46,14 @@ public class WxUserController {
         }else{
             map.put("loginFlag",true);
             LitemallUser user = userService.findById(userId);
-            Integer noPay = orderService.countByOrderStatus(userId, (short) 1);
-            Integer noSend = orderService.countByOrderStatus(userId, (short) 2);
-            Integer transport = orderService.countByOrderStatus(userId, (short) 3);
+            Integer noPay = orderService.countByOrderStatus(userId, (short) 101);
+            Integer noSend = orderService.countByOrderStatus(userId, (short) 201);
+            Integer transport = orderService.countByOrderStatus(userId, (short) 301);
             map.put("user",user);
             map.put("noPay",noPay);
             map.put("noSend",noSend);
             map.put("transport",transport);
+            map.put("mobile",user.getMobile());
         }
 
         return map;

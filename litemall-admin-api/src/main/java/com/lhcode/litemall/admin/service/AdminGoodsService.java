@@ -139,9 +139,9 @@ public class AdminGoodsService {
 
         Integer id = goods.getId();
 
-        //将生成的分享图片地址写入数据库
+       /* //将生成的分享图片地址写入数据库
         String url = qCodeService.createGoodShareImage(goods.getId().toString(), goods.getPicUrl(), goods.getName());
-        goods.setShareUrl(url);
+        goods.setShareUrl(url);*/
 
         // 商品基本信息表litemall_goods
         if (goodsService.updateById(goods) == 0) {
@@ -208,14 +208,14 @@ public class AdminGoodsService {
         // 商品基本信息表litemall_goods
         goodsService.add(goods);
 
-        //将生成的分享图片地址写入数据库
+        /*//将生成的分享图片地址写入数据库
         String url = qCodeService.createGoodShareImage(goods.getId().toString(), goods.getPicUrl(), goods.getName());
         if (!StringUtils.isEmpty(url)) {
             goods.setShareUrl(url);
             if (goodsService.updateById(goods) == 0) {
                 throw new RuntimeException("更新数据失败");
             }
-        }
+        }*/
 
         // 商品规格表litemall_goods_specification
         for (LitemallGoodsSpecification specification : specifications) {

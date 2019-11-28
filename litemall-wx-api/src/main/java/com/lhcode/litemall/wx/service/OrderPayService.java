@@ -19,6 +19,7 @@ import com.github.binarywang.wxpay.exception.WxPayException;
 import com.github.binarywang.wxpay.service.WxPayService;
 import com.lhcode.litemall.core.notify.NotifyType;
 import com.lhcode.litemall.core.sdk.WXPayConfig;
+import com.lhcode.litemall.core.system.SystemConfig;
 import com.lhcode.litemall.core.util.DateTimeUtil;
 import com.lhcode.litemall.core.util.IpUtil;
 import com.lhcode.litemall.core.util.JacksonUtil;
@@ -74,7 +75,7 @@ public class OrderPayService {
     private LitemallGoodsSpecificationService goodsSpecificationService;
 
 
-    private final Integer  earnest = 1;
+    private  Integer  earnest = SystemConfig.getDownPayment().intValue();
 
     /**
      * 付款订单的预支付会话标识
@@ -89,6 +90,7 @@ public class OrderPayService {
      */
     @Transactional
     public Object prepay(Integer userId, String body, HttpServletRequest request) {
+        this.earnest = SystemConfig.getDownPayment().intValue();
         if (userId == null) {
             return ResponseUtil.unlogin();
         }
@@ -126,7 +128,7 @@ public class OrderPayService {
 //            int fee = 0;
 //            BigDecimal actualPrice = order.getActualPrice();
 //            fee = actualPrice.multiply(new BigDecimal(100)).intValue();
-            orderRequest.setTotalFee(earnest);
+            orderRequest.setTotalFee(earnest*100);
             orderRequest.setSpbillCreateIp(IpUtil.getIpAddr(request));
 
             result = wxPayService.createOrder(orderRequest);
@@ -165,6 +167,7 @@ public class OrderPayService {
      */
     @Transactional
     public synchronized Object payNotify(HttpServletRequest request, HttpServletResponse response) {
+        this.earnest = SystemConfig.getDownPayment().intValue();
         String xmlResult = null;
         try {
             xmlResult = IOUtils.toString(request.getInputStream(), request.getCharacterEncoding());
@@ -192,10 +195,10 @@ public class OrderPayService {
         if (OrderUtil.isPayStatus(order) && order.getPayId() != null) {
             return WxPayNotifyResponse.success("订单已经处理成功!");
         }
-        // 检查支付订单金额
-        if (!totalFee.equals("50")) {
-            return WxPayNotifyResponse.fail(order.getOrderSn() + " : 支付金额不符合 totalFee=" + totalFee);
-        }
+//        // 检查支付订单金额
+//        if (!totalFee.equals(earnest+"")) {
+//            return WxPayNotifyResponse.fail(order.getOrderSn() + " : 支付金额不符合 totalFee=" + totalFee);
+//        }
         order.setPayId(payId);
         order.setPayTime(LocalDateTime.now());
         order.setOrderStatus(OrderUtil.STATUS_PAY);

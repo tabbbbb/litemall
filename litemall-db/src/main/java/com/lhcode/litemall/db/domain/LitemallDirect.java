@@ -4,6 +4,8 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 @ApiModel(value = "LitemallDirect",description = "主页的直通车")
 public class LitemallDirect {
@@ -25,6 +27,20 @@ public class LitemallDirect {
 
     @ApiModelProperty(value = "是否启用")
     private Integer isStart;
+
+
+    public Map<String,Object> toVo(Integer pid){
+        Map<String,Object> map = new HashMap<>();
+        map.put("id",this.id);
+        map.put("title",this.title);
+        map.put("url",this.url);
+        map.put("link",this.link);
+        map.put("position",this.position);
+        map.put("isStart",this.isStart);
+        map.put("pid",pid);
+        return map;
+    }
+
 
     private Integer deleted;
 

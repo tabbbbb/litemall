@@ -60,4 +60,13 @@ public class WxConfigController {
         responseMap.put("min",SystemConfig.getFreightLimit());
         return ResponseUtil.ok(responseMap);
     }
+
+
+    @ApiOperation(value="返回订金配置",response=ResponseUtil.class,notes = "down:定金",nickname = "返回订金配置")
+    @GetMapping("/down")
+    public Object getDownPayment(){
+        Map<String,Object> responseMap = new HashMap<>();
+        responseMap.put("down",SystemConfig.getDownPayment());
+        return ResponseUtil.ok(responseMap);
+    }
 }

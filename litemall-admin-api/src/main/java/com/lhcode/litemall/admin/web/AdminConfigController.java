@@ -61,6 +61,27 @@ public class AdminConfigController {
         return ResponseUtil.ok();
     }
 
+    @RequiresPermissions("admin:config:down:list")
+    @RequiresPermissionsDesc(menu={"配置管理" , "订金配置"}, button="详情")
+    @GetMapping("/down")
+    public Object listDownPayment() {
+        Map<String, String> data = systemConfigService.listDownPayment();
+        return ResponseUtil.ok(data);
+    }
+
+    @RequiresPermissions("admin:config:down:updateConfigs")
+    @RequiresPermissionsDesc(menu={"配置管理" , "订金配置"}, button="编辑")
+    @PostMapping("/down")
+    public Object updateDownPayment(@RequestBody String body) {
+        Map<String, String> data = JacksonUtil.toMap(body);
+        systemConfigService.updateConfig(data);
+        SystemConfig.updateConfigs(data);
+        return ResponseUtil.ok();
+    }
+
+
+
+
 //    @RequiresPermissions("admin:config:order:list")
 //    @RequiresPermissionsDesc(menu={"配置管理" , "订单配置"}, button="详情")
 //    @GetMapping("/order")

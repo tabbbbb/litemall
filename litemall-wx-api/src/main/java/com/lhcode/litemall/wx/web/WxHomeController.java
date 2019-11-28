@@ -1,9 +1,7 @@
 package com.lhcode.litemall.wx.web;
 
-import com.lhcode.litemall.db.domain.LitemallAd;
-import com.lhcode.litemall.db.domain.LitemallDirect;
-import com.lhcode.litemall.db.domain.LitemallGoods;
-import com.lhcode.litemall.db.domain.LitemallGoodsSpecification;
+import com.lhcode.litemall.core.util.JacksonUtil;
+import com.lhcode.litemall.db.domain.*;
 import com.lhcode.litemall.db.service.*;
 import com.lhcode.litemall.wx.annotation.LoginUser;
 import com.lhcode.litemall.wx.service.HomeCacheManager;
@@ -46,6 +44,8 @@ public class WxHomeController {
 
     @Autowired
     private LitemallGoodsService goodsService;
+    @Autowired
+    private LitemallCategoryService categoryService;
 
     @Autowired
     private LitemallGoodsSpecificationService goodsSpecificationService;
@@ -92,6 +92,7 @@ public class WxHomeController {
                     map.put("url",ad.getUrl());
                     map.put("link",ad.getLink());
                     map.put("name",ad.getName());
+                    map.put("content",ad.getContent());
                     if (ad.getPosition() == 1)continue;
                     String [] goodsSn = ad.getLink().split(",");
                     List<Map<String,Object>> goodsList = new ArrayList<>();
@@ -112,7 +113,25 @@ public class WxHomeController {
                 return list;
             }
         };
-        Callable<List> directCallable = () ->directService.getList();
+        Callable<List> directCallable = new Callable<List>() {
+            @Override
+            public List call() throws Exception {
+                List list = new ArrayList();
+                List <LitemallDirect> directList = directService.getList();
+                for (LitemallDirect direct : directList) {
+                    Map<String, String> map = JacksonUtil.toMap(direct.getLink());
+
+                    if (map == null || map.get("id") == null){
+                        list.add(direct);
+                    }else {
+                        String id = map.get("id");
+                        LitemallCategory category = categoryService.findById(Integer.valueOf(id));
+                        list.add(direct.toVo(category.getPid() == 0 ?category.getId():category.getPid()));
+                    }
+                }
+                return list;
+            }
+        };
         FutureTask<List> adFutureTask = new FutureTask<>(adCallable);
         FutureTask<List> directFutureTask = new FutureTask<>(directCallable);
         executorService.submit(adFutureTask);
@@ -120,6 +139,7 @@ public class WxHomeController {
         try {
             data.put("ad",adFutureTask.get(10, TimeUnit.SECONDS));
             data.put("direct",directFutureTask.get(3, TimeUnit.SECONDS));
+
             HomeCacheManager.loadData(HomeCacheManager.INDEX,data);
         } catch (InterruptedException e) {
             e.printStackTrace();

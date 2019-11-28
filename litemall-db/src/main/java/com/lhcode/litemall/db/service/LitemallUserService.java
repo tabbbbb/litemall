@@ -37,6 +37,7 @@ public class LitemallUserService {
         UserVo userVo = new UserVo();
         userVo.setNickname(user.getNickname());
         userVo.setAvatar(user.getAvatar());
+        userVo.setId(user.getId());
         return userVo;
     }
 
@@ -171,9 +172,9 @@ public class LitemallUserService {
         userMapper.updateUserLevel(id,level);
     }
 
-    public String bindMobile(String mobile,String code){
+    public String bindMobile(String mobile,String openId){
         List<LitemallUser> user1 = this.queryByMobile(mobile);
-        List<LitemallUser> user2 = this.queryByOpenid(code);
+        List<LitemallUser> user2 = this.queryByOpenid(openId);
         if (user1.size() > 0){
             return "此手机号已被绑定";
         }

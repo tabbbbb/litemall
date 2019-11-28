@@ -200,7 +200,7 @@ public class WxGoodsController {
 			@ApiImplicitParam(paramType="query",name="page",value="页码",dataTypeClass = Integer.class,defaultValue = "1"),
 			@ApiImplicitParam(paramType="query",name="size",value="本页条数",dataTypeClass = Integer.class,defaultValue = "10"),
 			@ApiImplicitParam(paramType="query",name="sort",value="排序字段",dataTypeClass = String.class,defaultValue = "add_time"),
-			@ApiImplicitParam(paramType="query",name="order",value="排序顺序",dataTypeClass = String.class,defaultValue = "desc")
+			@ApiImplicitParam(paramType="query",name="order",value="排序顺序 price:排序价格,sales:排序销量",dataTypeClass = String.class,defaultValue = "desc")
 	})
 	public Object list(
 		 String type,
@@ -234,8 +234,6 @@ public class WxGoodsController {
 			map.put("region",filterRegion(regionList,goods));
 			response.add(map);
 		}
-
-		// 查询商品所属类目列表。
 		Map<String, Object> data = new HashMap<>();
 		data.put("goodsList", response);
 		data.put("count", PageInfo.of(goodsList).getTotal());
