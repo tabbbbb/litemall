@@ -75,7 +75,7 @@ public class OrderPayService {
     private LitemallGoodsSpecificationService goodsSpecificationService;
 
 
-    private  Integer  earnest = SystemConfig.getDownPayment().intValue();
+    private  Double  earnest = SystemConfig.getDownPayment().doubleValue();
 
     /**
      * 付款订单的预支付会话标识
@@ -90,7 +90,7 @@ public class OrderPayService {
      */
     @Transactional
     public Object prepay(Integer userId, String body, HttpServletRequest request) {
-        this.earnest = SystemConfig.getDownPayment().intValue();
+        this.earnest = SystemConfig.getDownPayment().doubleValue();
         if (userId == null) {
             return ResponseUtil.unlogin();
         }
@@ -128,7 +128,7 @@ public class OrderPayService {
 //            int fee = 0;
 //            BigDecimal actualPrice = order.getActualPrice();
 //            fee = actualPrice.multiply(new BigDecimal(100)).intValue();
-            orderRequest.setTotalFee(earnest*100);
+            orderRequest.setTotalFee((int) (earnest*100));
             orderRequest.setSpbillCreateIp(IpUtil.getIpAddr(request));
 
             result = wxPayService.createOrder(orderRequest);
@@ -167,7 +167,6 @@ public class OrderPayService {
      */
     @Transactional
     public synchronized Object payNotify(HttpServletRequest request, HttpServletResponse response) {
-        this.earnest = SystemConfig.getDownPayment().intValue();
         String xmlResult = null;
         try {
             xmlResult = IOUtils.toString(request.getInputStream(), request.getCharacterEncoding());
@@ -202,7 +201,7 @@ public class OrderPayService {
         order.setPayId(payId);
         order.setPayTime(LocalDateTime.now());
         order.setOrderStatus(OrderUtil.STATUS_PAY);
-        order.setActualPrice(BigDecimal.valueOf(Integer.valueOf(totalFee)));
+        order.setActualPrice(BigDecimal.valueOf(Double.valueOf(totalFee)));
         if (orderService.updateWithOptimisticLocker(order) == 0) {
             // 这里可能存在这样一个问题，用户支付和系统自动取消订单发生在同时
             // 如果数据库首先因为系统自动取消订单而更新了订单状态；
