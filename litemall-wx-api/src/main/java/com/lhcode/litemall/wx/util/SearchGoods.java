@@ -60,6 +60,7 @@ public class SearchGoods {
             }
             map.put("hotList",hotList);
             map.put("newList",newList);
+            map.put("exceedTime",LocalDateTime.now().plusHours(2));
         }
     }
 
