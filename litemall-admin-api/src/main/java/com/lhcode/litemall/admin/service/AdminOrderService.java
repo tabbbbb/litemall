@@ -7,6 +7,7 @@ import com.github.binarywang.wxpay.bean.result.WxPayRefundResult;
 import com.github.binarywang.wxpay.exception.WxPayException;
 import com.github.binarywang.wxpay.service.WxPayService;
 import com.github.pagehelper.PageInfo;
+import io.swagger.models.auth.In;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import com.lhcode.litemall.core.notify.NotifyService;
@@ -255,7 +256,7 @@ public class AdminOrderService {
 
     public Object notarize(String body){
         Integer orderId = JacksonUtil.parseInteger(body,"orderId");
-        Integer notarizePrice = JacksonUtil.parseInteger(body,"notarizeMoney");
+        Double notarizePrice = JacksonUtil.parseObject(body,"notarizeMoney",Double.class);
         LitemallOrder order = orderService.findById(orderId);
         if (order.getOrderStatus() != 301){
             return ResponseUtil.fail();
