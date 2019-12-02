@@ -6,11 +6,14 @@ import com.github.pagehelper.PageHelper;
 import com.lhcode.litemall.db.dao.LitemallFootprintMapper;
 import com.lhcode.litemall.db.domain.LitemallFootprint;
 import com.lhcode.litemall.db.domain.LitemallFootprintExample;
+import org.springframework.cglib.core.Local;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Date;
 import java.util.List;
 
 @Service
@@ -75,6 +78,15 @@ public class LitemallFootprintService {
             example.setOrderByClause(sort + " " + order);
         }
         return footprintMapper.selectFootprintByUserId(example);
+    }
+
+
+    public int deleteFootprint(Integer goodsId, LocalDateTime addTime){
+        addTime = LocalDateTime.of(addTime.getYear(),addTime.getMonth(),addTime.getDayOfMonth(),0,0,0);
+        LitemallFootprintExample example = new LitemallFootprintExample();
+        LitemallFootprintExample.Criteria criteria = example.createCriteria();
+        criteria.andGoodsIdEqualTo(goodsId).andAddTimeEqualTo(addTime);
+        return footprintMapper.deleteByExample(example);
     }
 
 

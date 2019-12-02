@@ -18,6 +18,8 @@ import springfox.documentation.annotations.ApiIgnore;
 
 import javax.validation.constraints.NotNull;
 import javax.xml.ws.Response;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -132,6 +134,7 @@ public class WxGoodsController {
 				Callable addFootprintCallable = new Callable() {
 					@Override
 					public Object call() throws Exception {
+						footprintService.deleteFootprint(goods.getId(), LocalDateTime.now());
 						LitemallFootprint footprint = new LitemallFootprint();
 						footprint.setGoodsId(goods.getId());
 						footprint.setUserId(userId);
