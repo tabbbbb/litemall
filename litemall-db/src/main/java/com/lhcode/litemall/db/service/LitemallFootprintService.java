@@ -24,7 +24,7 @@ public class LitemallFootprintService {
     public List<LitemallFootprint> queryByAddTime(Integer userId, Integer page, Integer size) {
         LitemallFootprintExample example = new LitemallFootprintExample();
         example.or().andUserIdEqualTo(userId).andDeletedEqualTo(false);
-        example.setOrderByClause(LitemallFootprint.Column.addTime.desc());
+        example.setOrderByClause(LitemallFootprint.Column.addTime.desc() + "," + LitemallFootprint.Column.updateTime.desc());
         PageHelper.startPage(page, size);
         return footprintMapper.selectByExample(example);
     }
@@ -56,7 +56,7 @@ public class LitemallFootprintService {
         criteria.andDeletedEqualTo(false);
 
         if (!StringUtils.isEmpty(sort) && !StringUtils.isEmpty(order)) {
-            example.setOrderByClause(sort + " " + order);
+            example.setOrderByClause("update_time desc,"+sort + " " + order);
         }
 
         PageHelper.startPage(page, size);
@@ -75,7 +75,7 @@ public class LitemallFootprintService {
             criteria.andUserIdEqualTo(id);
         }
         if (!StringUtils.isEmpty(sort) && !StringUtils.isEmpty(order)) {
-            example.setOrderByClause(sort + " " + order);
+            example.setOrderByClause(sort + " " + order+", update_time desc");
         }
         return footprintMapper.selectFootprintByUserId(example);
     }

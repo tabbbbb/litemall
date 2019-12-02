@@ -76,17 +76,17 @@ public class AdminFootprintController {
         return mapList;
     }
 
-    @RequiresPermissionsDesc(menu={"用户管理" , "用户足迹"}, button="查询")
-    @GetMapping("/footprint")
-    public Object selectFootprintByUserId(Integer userId,String sort, String order){
-        if (userId == null){
-            return ResponseUtil.fail(AdminResponseCode.USER_ID_NULL,"用户ID为空");
-        }
-        if (!userService.userCount(userId)){
-            return ResponseUtil.fail(AdminResponseCode.INVALID_USER_ID,"用户ID不存在");
-        }
 
-        return ResponseUtil.ok(footprintService.selectFootprintByUserId(userId,sort,order));
-    }
+//    @GetMapping("/footprint")
+//    public Object selectFootprintByUserId(Integer userId,String sort, String order){
+//        if (userId == null){
+//            return ResponseUtil.fail(AdminResponseCode.USER_ID_NULL,"用户ID为空");
+//        }
+//        if (!userService.userCount(userId)){
+//            return ResponseUtil.fail(AdminResponseCode.INVALID_USER_ID,"用户ID不存在");
+//        }
+//
+//        return ResponseUtil.ok(footprintService.selectFootprintByUserId(userId,sort,order));
+//    }
 
 }
