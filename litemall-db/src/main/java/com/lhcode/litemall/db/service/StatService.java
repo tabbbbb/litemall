@@ -17,11 +17,11 @@ public class StatService {
         return statMapper.statUser();
     }
 
-    public List<Map> statOrder() {
-        return statMapper.statOrder();
+    public List<Map> statOrder(Integer parentId) {
+        return statMapper.statOrder(parentId);
     }
 
-    public List<Map> statGoods() {
-        return statMapper.statGoods();
+    public List<Map> statGoods(Integer parentId) {
+        return statMapper.statGoods(parentId);
     }
 }
