@@ -41,7 +41,7 @@ public class LitemallShoppingTrolleyService {
         LitemallShoppingTrolleyExample.Criteria criteria = example.createCriteria();
         criteria.andGoodsIdEqualTo(trolley.getGoodsId());
         criteria.andGoodsSpecIdEqualTo(trolley.getGoodsSpecId());
-        criteria.andGoodsSpecIdEqualTo(trolley.getUserId());
+        criteria.andUserIdEqualTo(trolley.getUserId());
         List<LitemallShoppingTrolley> shoppingTrolleyList = shoppingTrolleyMapper.selectByExample(example);
         if (shoppingTrolleyList.size() != 0){
             LitemallShoppingTrolley shoppingTrolley = shoppingTrolleyList.get(0);
