@@ -138,7 +138,7 @@ public class WxHomeController {
         executorService.submit(directFutureTask);
         try {
             data.put("ad",adFutureTask.get(10, TimeUnit.SECONDS));
-            data.put("direct",directFutureTask.get(3, TimeUnit.SECONDS));
+            data.put("direct",directFutureTask.get(10, TimeUnit.SECONDS));
 
             HomeCacheManager.loadData(HomeCacheManager.INDEX,data);
         } catch (InterruptedException e) {
