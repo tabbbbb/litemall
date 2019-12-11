@@ -46,7 +46,7 @@ public class TencentSmsSender implements SmsSender {
     @Override
     public SmsResult sendWithTemplate(String phone, int templateId, String[] params) {
         try {
-            SmsSingleSenderResult result = sender.sendWithParam("86", phone, templateId, params, "", "", "");
+            SmsSingleSenderResult result = sender.sendWithParam("86", phone, templateId, params, "江西海硕农业发展有限公司", "", "");
             logger.debug(result);
             System.out.println("1");
             SmsResult smsResult = new SmsResult();
