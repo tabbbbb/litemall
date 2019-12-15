@@ -45,7 +45,7 @@ public class CancelOrder implements ApplicationRunner {
     private LitemallOrderService orderService;
 
 
-    public  void addCancel(LitemallOrder o1){
+    public void addCancel(LitemallOrder o1){
         final Timer timer = new Timer();
         Date date = Date.from(o1.getEndTime().atZone( ZoneId.systemDefault()).toInstant());
         timer.schedule(new TimerTask() {

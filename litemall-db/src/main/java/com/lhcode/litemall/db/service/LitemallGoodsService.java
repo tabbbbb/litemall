@@ -2,11 +2,8 @@ package com.lhcode.litemall.db.service;
 
 import com.github.pagehelper.PageHelper;
 import com.lhcode.litemall.db.dao.LitemallGoodsMapper;
-import com.lhcode.litemall.db.domain.LitemallGoods;
+import com.lhcode.litemall.db.domain.*;
 import com.lhcode.litemall.db.domain.LitemallGoods.Column;
-import com.lhcode.litemall.db.domain.LitemallGoodsExample;
-import com.lhcode.litemall.db.domain.LitemallGoodsSpecification;
-import com.lhcode.litemall.db.domain.LitemallUser;
 import com.sun.org.apache.bcel.internal.generic.IF_ACMPEQ;
 import io.swagger.models.auth.In;
 import org.springframework.stereotype.Service;
@@ -133,39 +130,48 @@ public class LitemallGoodsService {
      */
     public List<LitemallGoods> querySelective(String type,String address,Integer catId, Integer userId, String keywords, Integer typeId, Integer offset, Integer limit, String sort, String order) {
         LitemallGoodsExample example = new LitemallGoodsExample();
-        String [] addressId = {"-1"};
-        if (address != null && address.length() > 0){
-            addressId = address.split(",");
+
+
+        LitemallGoodsExample.Criteria criteria = example.or();
+        if (typeId != null) {
+            if (typeId == 1) {
+                criteria.andIsHotEqualTo(true);
+            }else if (typeId == 2){
+                criteria.andIsSaleEqualTo(true);
+            }else if (typeId == 3){
+                criteria.andIsNewEqualTo(true);
+            }
         }
 
-        for (int i = 0; i < addressId.length; i++) {
-            LitemallGoodsExample.Criteria criteria = example.or();
+        if (!StringUtils.isEmpty(keywords)) {
+            criteria.andNameLike("%" + keywords + "%");
+        }
+        criteria.andIsOnSaleEqualTo(true);
+        criteria.andDeletedEqualTo(false);
 
 
-            if (typeId != null) {
-                if (typeId == 1) {
-                    criteria.andIsHotEqualTo(true);
-                }else if (typeId == 2){
-                    criteria.andIsSaleEqualTo(true);
-                }else if (typeId == 3){
-                    criteria.andIsNewEqualTo(true);
+        if (catId != null){
+            LitemallCategory category = categoryService.findById(catId);
+            if (category.getLevel().equals("L1")){
+                List<LitemallCategory> categoryList = categoryService.queryByPid(catId);
+                if (categoryList.size() == 1){
+                    criteria.andCategoryIdEqualTo(categoryList.get(0).getId());
+                }else{
+                    List<Integer> integers = new ArrayList<>();
+                    for (int i = 0; i < categoryList.size(); i++) {
+                        integers.add(categoryList.get(i).getId());
+                    }
+
+                    criteria.andCategoryIdIn(integers);
                 }
+
+            }else{
+                criteria.andCategoryIdEqualTo(catId);
             }
 
-            if (i == 0 && !addressId[i].equals("-1")){
-                criteria.andProvinceIdEqualTo(Integer.valueOf(addressId[i]));
-            }else if (i == 1){
-                criteria.andCityIdEqualTo(Integer.valueOf(addressId[i]));
-            }else if (i == 2){
-                criteria.andAreaIdEqualTo(Integer.valueOf(addressId[i]));
-            }
-
-            if (!StringUtils.isEmpty(keywords)) {
-                criteria.andNameLike("%" + keywords + "%");
-            }
-            criteria.andIsOnSaleEqualTo(true);
-            criteria.andDeletedEqualTo(false);
         }
+
+
         String discount = "1";
         if (userId != null){
             discount = vipService.getUserLevel(userId);
@@ -191,22 +197,8 @@ public class LitemallGoodsService {
                 goodsList.remove(i);
                 i--;
             }
-
-
         }
-        for (int i = 0; i < goodsList.size(); i++) {
-            if (!StringUtils.isEmpty(catId) && catId != 0) {
-                Integer categoryId = goodsList.get(i).getCategoryId();
-                if (!catId.equals(categoryId)){
-                    Integer pid = categoryService.findById(categoryId).getPid();
-                    if(!pid.equals(catId)){
-                        goodsList.remove(i);
-                        i--;
-                    }
 
-                }
-            }
-        }
         return goodsList;
     }
 

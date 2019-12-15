@@ -98,26 +98,9 @@ public class WxGoodsController {
 		LitemallGoods goods = goodsService.findById(id,userId);
 		Callable<List> specCallable = () -> goodsSpecificationService.queryByGid(userId,id);
 		Callable<List> attrCallable = () -> goodsAttributeService.queryByGid(id);
-		Callable<LitemallRegion> regionCallable = new Callable<LitemallRegion>() {
-			@Override
-			public LitemallRegion call() throws Exception {
-				LitemallRegion region = null;
-				if (goods.getAreaId() != null && goods.getAreaId() != 0){
-					region = regionService.findById(goods.getAreaId());
-				}else if (goods.getCityId() != null && goods.getCityId() != 0){
-					region = regionService.findById(goods.getCityId());
-				}else if (goods.getProvinceId() != null && goods.getProvinceId() != 0){
-					region = regionService.findById(goods.getProvinceId());
-				}
-				return region;
-			}
-		};
-
 		FutureTask<List> specFutureTask = new FutureTask<>(specCallable);
-		FutureTask<LitemallRegion> regionFutureTask = new FutureTask<>(regionCallable);
 		FutureTask<List> attrFutureTask = new FutureTask<>(attrCallable);
 		executorService.submit(specFutureTask);
-		executorService.submit(regionFutureTask);
 		executorService.submit(attrFutureTask);
 		try {
 			if(userId != null){
@@ -151,7 +134,6 @@ public class WxGoodsController {
 			map.put("goods",goods);
 			map.put("attr",attrFutureTask.get(3,TimeUnit.SECONDS));
 			map.put("spec",specFutureTask.get(3,TimeUnit.SECONDS));
-			map.put("region",regionFutureTask.get(3,TimeUnit.SECONDS));
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		} catch (ExecutionException e) {
