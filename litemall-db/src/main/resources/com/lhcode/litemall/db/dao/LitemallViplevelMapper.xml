@@ -364,7 +364,7 @@
   </select>
   <select id="getLowLevelId" resultType="java.lang.Integer">
       select id from litemall_viplevel
-      order by discount DESC
+      order by discount asc
       limit 1
   </select>
 </mapper>
