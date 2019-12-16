@@ -75,9 +75,9 @@ public class WxHomeController {
     @GetMapping("/index")
     @ApiOperation(value = "获取主页的所有图片和跳转链接",response =LitemallAd.class ,notes = "data:{ad:Map,direct:LitemallDirect}",nickname = "获取主页的所有图片和跳转链接")
     public Object index(@ApiIgnore @LoginUser Integer userId) {
-        if (HomeCacheManager.hasData(HomeCacheManager.INDEX)){
-            return ResponseUtil.ok(HomeCacheManager.getCacheData(HomeCacheManager.INDEX));
-        }
+//        if (HomeCacheManager.hasData(HomeCacheManager.INDEX)){
+//            return ResponseUtil.ok(HomeCacheManager.getCacheData(HomeCacheManager.INDEX));
+//        }
         Map<String,Object> data = new HashMap<>();
         Callable<List> adCallable = new Callable<List>() {
             @Override
@@ -140,7 +140,7 @@ public class WxHomeController {
             data.put("ad",adFutureTask.get(10, TimeUnit.SECONDS));
             data.put("direct",directFutureTask.get(10, TimeUnit.SECONDS));
 
-            HomeCacheManager.loadData(HomeCacheManager.INDEX,data);
+            //HomeCacheManager.loadData(HomeCacheManager.INDEX,data);
         } catch (InterruptedException e) {
             e.printStackTrace();
         } catch (ExecutionException e) {

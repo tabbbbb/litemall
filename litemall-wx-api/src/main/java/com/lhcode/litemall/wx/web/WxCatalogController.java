@@ -49,13 +49,13 @@ public class WxCatalogController {
             @ApiImplicitParam(paramType="query",name="id",value="分类类目Id",dataTypeClass = Integer.class,required = true)
     })
     public Object index(Integer id) {
-        //优先从缓存中读取
-        if (HomeCacheManager.hasData(HomeCacheManager.CATALOG)) {
-            Map<String,Object> map = HomeCacheManager.getCacheData(HomeCacheManager.CATALOG);
-            List<CategoryVo> all = (List<CategoryVo>) map.get(HomeCacheManager.CATALOG);
-            System.out.println(idAll(all,id));
-            return ResponseUtil.ok(idAll(all,id));
-        }
+//        //优先从缓存中读取
+//        if (HomeCacheManager.hasData(HomeCacheManager.CATALOG)) {
+//            Map<String,Object> map = HomeCacheManager.getCacheData(HomeCacheManager.CATALOG);
+//            List<CategoryVo> all = (List<CategoryVo>) map.get(HomeCacheManager.CATALOG);
+//            System.out.println(idAll(all,id));
+//            return ResponseUtil.ok(idAll(all,id));
+//        }
         LitemallCategory category = categoryService.findById(id);
         if (category == null){
             return ResponseUtil.fail();
@@ -90,14 +90,14 @@ public class WxCatalogController {
     @GetMapping("all")
     @ApiOperation(value = "获取所有类目",response = CategoryVo.class,notes = "{data:{catalog:[CategoryVo]}}",nickname = "获取所有类目")
     public Object queryAll() {
-        //优先从缓存中读取
-        if (HomeCacheManager.hasData(HomeCacheManager.CATALOG)) {
-            return ResponseUtil.ok(HomeCacheManager.getCacheData(HomeCacheManager.CATALOG));
-        }
+//        //优先从缓存中读取
+//        if (HomeCacheManager.hasData(HomeCacheManager.CATALOG)) {
+//            return ResponseUtil.ok(HomeCacheManager.getCacheData(HomeCacheManager.CATALOG));
+//        }
         List<CategoryVo> all = allLevel(0);
         Map<String,Object> map = new HashMap<>();
         map.put(HomeCacheManager.CATALOG,all);
-        HomeCacheManager.loadData(HomeCacheManager.CATALOG,map);
+//        HomeCacheManager.loadData(HomeCacheManager.CATALOG,map);
         return ResponseUtil.ok(map);
     }
 
