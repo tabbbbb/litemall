@@ -74,6 +74,7 @@ public class AdminOrderService {
             LitemallGoods goods = goodsService.findById(orderGoods.getGoodsId(),user.getId());
             LitemallGoodsSpecification goodsSpecification = goodsSpecificationService.findById(user.getId(), Integer.valueOf(orderGoods.getSpecifications()));
             Map map = new HashMap();
+            map.put("goodsSn",goods.getGoodsSn());
             map.put("goodsName",goods.getName());
             map.put("specName",goodsSpecification.getSpecification());
             map.put("number",orderGoods.getNumber());
