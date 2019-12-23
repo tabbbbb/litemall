@@ -28,6 +28,7 @@ public class LitemallUserService {
     @Autowired
     private LitemallAdminService adminService;
 
+
     public LitemallUser findById(Integer userId) {
         return userMapper.selectByPrimaryKey(userId);
     }

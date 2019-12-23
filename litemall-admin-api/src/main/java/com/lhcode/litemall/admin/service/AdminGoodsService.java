@@ -47,9 +47,9 @@ public class AdminGoodsService {
     @Autowired
     private QCodeService qCodeService;
 
-    public Object list(Boolean isNew,Boolean isHot,Boolean isSale,String goodsSn, String name,
+    public Object list(Boolean isNew,Boolean isHot,Boolean isSale,Boolean isOnSale,String goodsSn, String name,
                        Integer page, Integer limit, String sort, String order) {
-        List<LitemallGoods> goodsList = goodsService.querySelective(isNew,isHot,isSale,goodsSn, name, page, limit, sort, order);
+        List<LitemallGoods> goodsList = goodsService.querySelective(isNew,isHot,isSale,isOnSale,goodsSn, name, page, limit, sort, order);
         long total = PageInfo.of(goodsList).getTotal();
         Map<String, Object> data = new HashMap<>();
         data.put("total", total);

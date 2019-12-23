@@ -49,7 +49,7 @@ public class AdminOrderController {
     @RequiresPermissions("admin:order:list")
     @RequiresPermissionsDesc(menu = {"商场管理", "订单管理"}, button = "查询")
     @GetMapping("/list")
-    public Object list(String nickname, String orderSn,
+    public Object list(String nickname, String orderSn,String mobile,
                        @RequestParam(required = false) List<Short> orderStatusArray,
                        @RequestParam(defaultValue = "1") Integer page,
                        @RequestParam(defaultValue = "10") Integer limit,
@@ -58,7 +58,7 @@ public class AdminOrderController {
         Subject currentUser = SecurityUtils.getSubject();
         LitemallAdmin admin = (LitemallAdmin) currentUser.getPrincipal();
         Integer adminId = AdminRoleFlag.toAdminId(admin);
-        return adminOrderService.list(adminId,nickname, orderSn, orderStatusArray, page, limit, sort, order);
+        return adminOrderService.list(adminId,nickname,mobile, orderSn, orderStatusArray, page, limit, sort, order);
 
     }
 

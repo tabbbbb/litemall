@@ -1,8 +1,11 @@
 package com.lhcode.litemall.admin.web;
 
 import com.lhcode.litemall.admin.annotation.RequiresPermissionsDesc;
+import com.lhcode.litemall.db.domain.LitemallAddress;
 import com.lhcode.litemall.db.domain.LitemallAdmin;
+import com.lhcode.litemall.db.service.LitemallAddressService;
 import com.lhcode.litemall.db.service.LitemallAdminService;
+import com.lhcode.litemall.db.service.LitemallRegionService;
 import com.lhcode.litemall.db.util.AdminRoleFlag;
 import com.github.pagehelper.PageInfo;
 import org.apache.commons.logging.Log;
@@ -37,6 +40,12 @@ public class AdminUserController {
     private LitemallUserService userService;
     @Autowired
     private LitemallAdminService adminService;
+
+    @Autowired
+    private LitemallAddressService addressService;
+
+    @Autowired
+    private LitemallRegionService regionService;
 
     @RequiresPermissions("admin:user:list")
     @RequiresPermissionsDesc(menu={"用户管理" , "会员管理"}, button="查询")
@@ -91,6 +100,14 @@ public class AdminUserController {
                 map.put("adminId",admin.getId());
                 map.put("adminName",admin.getUsername());
             }
+            LitemallAddress address =addressService.findDefault(user.getId());
+            if (address != null){
+                String province = regionService.findById(address.getProvinceId()).getName();
+                String city = regionService.findById(address.getCityId()).getName();
+                String area = regionService.findById(address.getAreaId()).getName();
+                map.put("defaultAddress",province+" "+city+" "+area+" "+address.getAddress());
+            }
+
             mapList.add(map);
         }
         return mapList;

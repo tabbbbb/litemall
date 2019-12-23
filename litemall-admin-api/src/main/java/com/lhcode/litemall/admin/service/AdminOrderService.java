@@ -54,9 +54,9 @@ public class AdminOrderService {
     @Autowired
     private LogHelper logHelper;
 
-    public Object list(Integer adminId,String nickname, String orderSn, List<Short> orderStatusArray,
+    public Object list(Integer adminId,String nickname,String mobile, String orderSn, List<Short> orderStatusArray,
                        Integer page, Integer limit, String sort, String order) {
-        List<LitemallOrder> orderList = orderService.querySelective(adminId,nickname, orderSn, orderStatusArray, page, limit, sort, order);
+        List<LitemallOrder> orderList = orderService.querySelective(adminId,nickname,mobile, orderSn, orderStatusArray, page, limit, sort, order);
         long total = PageInfo.of(orderList).getTotal();
         Map<String, Object> data = new HashMap<>();
         data.put("total", total);

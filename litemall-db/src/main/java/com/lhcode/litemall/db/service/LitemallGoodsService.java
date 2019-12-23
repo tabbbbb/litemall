@@ -228,7 +228,7 @@ public class LitemallGoodsService {
      * @param order
      * @return
      */
-    public List<LitemallGoods> querySelective(Boolean isNew,Boolean isHot,Boolean isSale,String goodsSn, String name, Integer page, Integer size, String sort, String order) {
+    public List<LitemallGoods> querySelective(Boolean isNew,Boolean isHot,Boolean isSale,Boolean isOnSale,String goodsSn, String name, Integer page, Integer size, String sort, String order) {
         LitemallGoodsExample example = new LitemallGoodsExample();
         LitemallGoodsExample.Criteria criteria = example.createCriteria();
         if (!StringUtils.isEmpty(goodsSn)) {
@@ -238,13 +238,20 @@ public class LitemallGoodsService {
             criteria.andNameLike("%" + name + "%");
         }
         criteria.andDeletedEqualTo(false);
-        if (isNew!= null && isNew){
-            criteria.andIsNewEqualTo(true);
-        }else if(isHot!= null && isHot){
-            criteria.andIsHotEqualTo(true);
-        }else if (isSale!= null && isSale){
-            criteria.andIsSaleEqualTo(true);
+        if (isNew!= null){
+            criteria.andIsNewEqualTo(isNew);
         }
+        if(isHot!= null){
+            criteria.andIsHotEqualTo(isHot);
+        }
+        if (isSale!= null){
+            criteria.andIsSaleEqualTo(isSale);
+        }
+
+        if (isOnSale != null){
+            criteria.andIsOnSaleEqualTo(isOnSale);
+        }
+
         if (!StringUtils.isEmpty(sort) && !StringUtils.isEmpty(order)) {
             example.setOrderByClause(sort + " " + order);
         }
