@@ -4,6 +4,7 @@ import com.lhcode.litemall.db.dao.LitemallGoodsSpecificationMapper;
 import com.lhcode.litemall.db.domain.LitemallGoods;
 import com.lhcode.litemall.db.domain.LitemallGoodsSpecification;
 import com.lhcode.litemall.db.domain.LitemallGoodsSpecificationExample;
+import io.swagger.models.auth.In;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -81,6 +82,12 @@ public class LitemallGoodsSpecificationService {
         goodsSpecificationMapper.updateIsDefault(goodsId);
     }
 
+    public List<LitemallGoodsSpecification> getAllSpecByGoodsId(Integer goodsId){
+        LitemallGoodsSpecificationExample example = new LitemallGoodsSpecificationExample();
+        example.or().andGoodsIdEqualTo(goodsId).andDeletedEqualTo(false);
+        return goodsSpecificationMapper.selectByExample(example);
+    }
+
     /**
      * [
      * {
@@ -156,6 +163,20 @@ public class LitemallGoodsSpecificationService {
 
     public int update(LitemallGoodsSpecification goodsSpecification){
         return  goodsSpecificationMapper.updateByPrimaryKeySelective(goodsSpecification);
+    }
+
+
+    public int deleteSpec(List<LitemallGoodsSpecification> list){
+        String specIds = ""+list.get(0).getId();
+        for (int i = 1; i < list.size(); i++) {
+            specIds+= ","+list.get(i).getId();
+        }
+        LitemallGoodsSpecification spec = new LitemallGoodsSpecification();
+        spec.setDeleted(false);
+        LitemallGoodsSpecificationExample example = new LitemallGoodsSpecificationExample();
+        LitemallGoodsSpecificationExample.Criteria criteria = example.createCriteria();
+        criteria.andIdIn(specIds);
+        return goodsSpecificationMapper.deleteSpecs(specIds);
     }
 
 

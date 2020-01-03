@@ -1,5 +1,6 @@
 package com.lhcode.litemall.db.dao;
 
+import com.lhcode.litemall.db.domain.LitemallGoodsSpecification;
 import com.lhcode.litemall.db.domain.LitemallShoppingTrolley;
 import com.lhcode.litemall.db.domain.LitemallShoppingTrolleyExample;
 import org.apache.ibatis.annotations.Param;
@@ -30,4 +31,6 @@ public interface LitemallShoppingTrolleyMapper {
     int updateByPrimaryKey(LitemallShoppingTrolley record);
 
     int deleteByIdAll(String [] ids);
+
+    int deleteBySpecId(List<LitemallGoodsSpecification> list);
 }

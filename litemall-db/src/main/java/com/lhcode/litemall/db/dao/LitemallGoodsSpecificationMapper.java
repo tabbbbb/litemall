@@ -161,4 +161,10 @@ public interface LitemallGoodsSpecificationMapper {
 
 
     int updateIsDefault(Integer goodsId);
+
+
+
+    int deleteSpecs(String specIds);
+
+
 }

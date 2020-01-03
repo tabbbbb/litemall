@@ -98,6 +98,9 @@ public class WxOrderService {
             BigDecimal totalPrice = new BigDecimal(0);
             for (LitemallOrderGoods orderGoods :orderGoodsList) {
                 LitemallGoodsSpecification spec = goodsSpecificationService.findById(userId,Integer.valueOf(orderGoods.getSpecifications()));
+                if (spec.getDeleted()){
+                    throw new RuntimeException("此商品规格属性已改变");
+                }
                 LitemallGoods goods = goodsService.findById(spec.getGoodsId(),userId);
                 if (!goods.getIsOnSale()){
                     throw new RuntimeException("商品已下架");

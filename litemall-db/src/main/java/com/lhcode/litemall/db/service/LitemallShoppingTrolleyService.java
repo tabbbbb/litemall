@@ -11,6 +11,7 @@
 package com.lhcode.litemall.db.service;
 
 import com.lhcode.litemall.db.dao.LitemallShoppingTrolleyMapper;
+import com.lhcode.litemall.db.domain.LitemallGoodsSpecification;
 import com.lhcode.litemall.db.domain.LitemallShoppingTrolley;
 import com.lhcode.litemall.db.domain.LitemallShoppingTrolleyExample;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -67,6 +68,10 @@ public class LitemallShoppingTrolleyService {
         LitemallShoppingTrolleyExample.Criteria criteria = example.createCriteria();
         criteria.andUserIdEqualTo(userId);
         return shoppingTrolleyMapper.selectByExample(example);
+    }
+
+    public int deleteBySpecId(List<LitemallGoodsSpecification> list){
+        return shoppingTrolleyMapper.deleteBySpecId(list);
     }
 
 }

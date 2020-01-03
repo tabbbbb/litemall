@@ -43,6 +43,8 @@ public class AdminGoodsService {
     private LitemallOrderGoodsService orderGoodsService;
     @Autowired
     private LitemallRegionService regionService;
+    @Autowired
+    private LitemallShoppingTrolleyService shoppingTrolleyService;
 
     @Autowired
     private QCodeService qCodeService;
@@ -149,9 +151,9 @@ public class AdminGoodsService {
         }
 
         Integer gid = goods.getId();
-        specificationService.deleteByGid(gid);
         attributeService.deleteByGid(gid);
 
+        List<LitemallGoodsSpecification> specList = specificationService.getAllSpecByGoodsId(goods.getId());
         // 商品规格表litemall_goods_specification
         for (LitemallGoodsSpecification specification : specifications) {
             specification.setGoodsId(goods.getId());
@@ -162,7 +164,23 @@ public class AdminGoodsService {
                 specification.setThreePrice(goods.getThreePrice());
                 specificationService.updateIsDefault(goods.getId());
             }
-            specificationService.add(specification);
+
+            if (specification.getId() != null){
+                for (int i = 0; i < specList.size(); i++) {
+                    if (specList.get(i).getId().equals(specification.getId())){
+                        specList.remove(i);
+                        break;
+                    }
+                }
+                specificationService.update(specification);
+            }else{
+                specificationService.add(specification);
+            }
+
+        }
+        if (specList != null&& specList.size() != 0){
+            shoppingTrolleyService.deleteBySpecId(specList);
+            specificationService.deleteSpec(specList);
         }
 
         // 商品参数表litemall_goods_attribute
