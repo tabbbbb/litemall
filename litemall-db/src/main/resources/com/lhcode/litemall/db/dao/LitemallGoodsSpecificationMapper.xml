@@ -213,6 +213,7 @@
       <include refid="Example_Where_Clause" />
     </if>
   </delete>
+
   <insert id="insert" parameterType="com.lhcode.litemall.db.domain.LitemallGoodsSpecification">
     <!--
       WARNING - @mbg.generated
@@ -524,5 +525,10 @@
   </update>
   <update id="updateIsDefault">
     update litemall_goods_specification set is_default = 0 where goods_id = #{goodsId}
+  </update>
+
+  <update id="deleteSpecs">
+    update litemall_goods_specification set deleted = 1
+    where id in (#{specIds})
   </update>
 </mapper>

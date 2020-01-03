@@ -238,7 +238,12 @@
       </foreach>
     </where>
   </delete>
-
+    <delete id="deleteBySpecId">
+      delete from litemall_shopping_trolley
+      <foreach collection="list" item="item" separator="," open="where goods_spec_id in (" close=")">
+        #{item.id}
+      </foreach>
+    </delete>
 
 
 </mapper>

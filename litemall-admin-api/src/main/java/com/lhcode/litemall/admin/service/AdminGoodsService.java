@@ -201,6 +201,7 @@ public class AdminGoodsService {
         }
 
         Integer gid = goods.getId();
+        shoppingTrolleyService.deleteBySpecId(specificationService.getAllSpecByGoodsId(gid));
         goodsService.deleteById(gid);
         specificationService.deleteByGid(gid);
         attributeService.deleteByGid(gid);
