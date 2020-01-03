@@ -99,6 +99,9 @@ public class WxOrderService {
             for (LitemallOrderGoods orderGoods :orderGoodsList) {
                 LitemallGoodsSpecification spec = goodsSpecificationService.findById(userId,Integer.valueOf(orderGoods.getSpecifications()));
                 LitemallGoods goods = goodsService.findById(spec.getGoodsId(),userId);
+                if (!goods.getIsOnSale()){
+                    throw new RuntimeException("商品已下架");
+                }
                 totalPrice = totalPrice.add(spec.getPrice().multiply(BigDecimal.valueOf(orderGoods.getNumber())));
                 orderGoods.setOrderId(order.getId());
                 orderGoods.setGoodsId(goods.getId());

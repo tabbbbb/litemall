@@ -69,4 +69,11 @@ public class GlobalExceptionHandler {
         e.printStackTrace();
         return ResponseUtil.serious();
     }
+
+    @ExceptionHandler(RuntimeException.class)
+    @ResponseBody
+    public Object runtimeHandler(RuntimeException e) {
+        e.printStackTrace();
+        return ResponseUtil.fail(547891,e.getMessage());
+    }
 }
